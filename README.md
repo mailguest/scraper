@@ -1,8 +1,3 @@
-下面是更新后的 `README.md` 文件内容，包含对你最新项目结构的说明，包括 `wallstreetcn_scraper.py` 和 `sina_finance_scraper.py` 的修改，以及日志、爬取逻辑和新添加的字段。
-
-### 更新后的 `README.md` 示例：
-
-```markdown
 # Scraper Project
 
 ## 项目简介
