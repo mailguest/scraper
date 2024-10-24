@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  scraper:
+    build: .
+    container_name: scraper-app
+    ports:
+      - "5001:5001"
+    environment:
+      - DATA_DIR=/app/data   # Docker 容器内的路径
+      - LOGS_DIR=/app/logs   # Docker 容器内的路径
+    volumes:
+      - ${PWD}/data:/app/data  # 将当前目录的 data 文件夹挂载到容器内的 /app/data
+      - ${PWD}/logs:/app/logs  # 将当前目录的 logs 文件夹挂载到容器内的 /app/logs

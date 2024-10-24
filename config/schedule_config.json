@@ -1,0 +1,4 @@
+{
+    "list_scraper_cron": "0 * * * *",
+    "content_scraper_cron": "5 * * * *"
+}
