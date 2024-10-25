@@ -3,13 +3,13 @@
     {
       "name": "WallStreetCN",
       "url": "https://api-one-wscn.awtmt.com/apiv1/content/information-flow?channel=global&accept=article&limit={limit}&action=upglide",
-      "limit": 10,
+      "limit": 30,
       "method": "GET"
     },
     {
       "name": "SinaFinance",
       "url": "https://feed.mix.sina.com.cn/api/roll/get?pageid=155&lid=1686&num={limit}&page=1",
-      "limit": 10,
+      "limit": 30,
       "method": "GET"
     }
   ],

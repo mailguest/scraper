@@ -68,3 +68,11 @@ class SearchUtils():
                         data = json.load(f)
                         return data
         return None
+    
+    def refresh_cache(self):
+        """
+        刷新缓存
+        """
+        self.logger.info("refresh_cache start")
+        self.data = self.load_all_data()
+        self.logger.info("refresh_cache end")

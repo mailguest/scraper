@@ -30,7 +30,7 @@ def scrape_article_content(article, logger):
     
     scraper = ContentScraperFactory.create_scraper(article['source'], article['uri'])
     if scraper is None:
-        logger.warning(f"Scraper not found for {article['source']}. Skipping...")
+        # logger.warning(f"Scraper not found for {article['source']}. Skipping...")
         return 
     
     content = scraper.scrape()

@@ -8,8 +8,12 @@ app = Flask(__name__)
 logger = setup_logging("API", "api.log")
 
 # 获取数据的 API 端点
-@app.route('/data', methods=['GET'])
+@app.route('/articles', methods=['GET'])
 def get_data():
+    """
+    获取文章数据的 API 端点
+    :return: JSON 格式的文章数据
+    """
     logger.info("Received request for data")
 
     # 获取查询参数 page, limit 和 date，设置默认值
@@ -31,6 +35,11 @@ def get_data():
 
 @app.route('/article/<uuid>', methods=['GET'])
 def get_article(uuid):
+    """
+    获取指定 UUID 的文章
+    :param uuid: 文章的 UUID
+    :return: JSON 格式的文章数据
+    """
     logger.info(f"Received request for article with UUID: {uuid}")
 
     # 加载缓存中的数据
@@ -41,6 +50,36 @@ def get_article(uuid):
         return jsonify({"error": "Article not found"}), 404
 
     return jsonify(data)
+
+@app.route('/refresh', methods=['POST'])
+def refresh_cache():
+    """
+    刷新缓存
+    :return: JSON 格式的响应
+    """
+    logger.info("Received request to flush cache")
+
+    # 清空缓存
+    get_search(logger).refresh_cache()
+
+    return jsonify({"message": "Cache flushed"})
+
+@app.route('/scrape', methods=['POST'])
+def do_scrape():
+    """
+    手动抓取一次数据
+    """
+    try:
+        logger.info("Running manual scraping job...")
+        from scripts.scraper import scrape
+        scrape()
+        from scripts.scrape_content import scrape_all_articles
+        scrape_all_articles(logger)
+        logger.info("Manual scraping completed successfully.")
+    except Exception as e:
+        logger.error(f"Manual scraping failed: {str(e)}")
+        return jsonify({"error": "Manual scraping failed"}), 500
+    return jsonify({"message": "Manual scraping completed successfully"})
 
 if __name__ == "__main__":
     logger.info("Starting API server...")
