@@ -1,4 +1,4 @@
-# 使用官方的 Python 3.10.15 版本作为基础镜像
+# 使用官方的 python:3.10-slim 版本作为基础镜像
 FROM python:3.10-slim
 
 # 设置工作目录
