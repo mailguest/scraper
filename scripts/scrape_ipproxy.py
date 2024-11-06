@@ -1,4 +1,5 @@
 import requests
+import os
 import json
 from lxml import etree
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,17 +15,33 @@ class IpProxy:
         self.area = area
         self.period_of_validity = period_of_validity
 
-proxy_ip_list : list[IpProxy] = []
+# proxy_ip_list : list[IpProxy] = []
 
 def get_random_proxies() -> dict:
     """
     随机获取一个代理 ip
     """
+    dir_path = os.path.abspath("data")
+    file_path = os.path.join(dir_path, "ip_proxies.json")
+    if not os.path.exists(file_path):
+        return None
+    with open(file_path, 'r', encoding='utf-8') as f:
+        proxy_ip_list = json.load(f)
+
     if proxy_ip_list is None or len(proxy_ip_list) == 0:
         return None
+    
     import random
     proxy = random.choice(proxy_ip_list)
     return OverseasFree.get_proxies(proxy.ip)
+
+
+def save(proxy_json):
+    dir_path = os.path.abspath("data")
+    file_path = os.path.join(dir_path, "ip_proxies.json")
+    # 将内容保存为 JSON 文件
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(proxy_json)
 
 class OverseasFree:
     def __init__(self, logger):
@@ -98,10 +115,10 @@ class OverseasFree:
             pass
 
         # 打印所有的有效 ip
-        self.logger.info(json.dumps([proxy.__dict__ for proxy in self.effective_ip_list], ensure_ascii=False, indent=4))
+        proxy_json = json.dumps([proxy.__dict__ for proxy in self.effective_ip_list], ensure_ascii=False, indent=4)
+        self.logger.info(proxy_json)
         self.logger.info('Get IP Number: %d' % len(self.effective_ip_list))
-        global effective_ip_list
-        effective_ip_list = self.effective_ip_list
+        save(proxy_json)
 
 
 def scrape_ipproxies(logger):
@@ -110,17 +127,17 @@ def scrape_ipproxies(logger):
     """
     OverseasFree(logger=logger).main()
 
-if __name__ == "__main__":
-    import os
-    import logging
-    LOGS_DIR = os.getenv("LOGS_DIR", "./logs")
-    # 将日志级别从字符串转换为 logging 模块的级别
-    level = logging.INFO
-    logger = logging.getLogger("logger_name")
-    logger.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(level)
-    logger.addHandler(console_handler)
-    scrape_ipproxies(logger)  # 运行爬虫
+# if __name__ == "__main__":
+#     import os
+#     import logging
+#     LOGS_DIR = os.getenv("LOGS_DIR", "./logs")
+#     # 将日志级别从字符串转换为 logging 模块的级别
+#     level = logging.INFO
+#     logger = logging.getLogger("logger_name")
+#     logger.setLevel(level)
+#     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+#     console_handler = logging.StreamHandler()
+#     console_handler.setFormatter(formatter)
+#     console_handler.setLevel(level)
+#     logger.addHandler(console_handler)
+#     scrape_ipproxies(logger)  # 运行爬虫

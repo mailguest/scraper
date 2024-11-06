@@ -1,7 +1,6 @@
 import schedule
 import time
 import json
-import os
 from utils.log_utils import setup_logging
 from scripts.scraper import scrape  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles  # 内容爬虫
@@ -73,12 +72,22 @@ def main():
     # 加载调度配置
     config = load_schedule_config()
 
+    # 立即执行 IP 代理爬虫
+    logger.info("Executing IP proxy scraping job immediately upon start...")
+    scrape_ip_proxies(logger)
+    time.sleep(10)
+    
     # 立即执行列表爬虫
     logger.info("Executing list scraping job immediately upon start...")
     scrape_list(logger)
+    time.sleep(10)
+
+    logger.info("Executing content scraping job immediately upon start...")
     scrape_content(logger)
+    time.sleep(10)
 
     # 设置定时任务
+    logger.info("Setting up scheduled jobs...")
     schedule_jobs(config)
 
     # 开始定时任务循环

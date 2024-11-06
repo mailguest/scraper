@@ -19,11 +19,11 @@ class SinaFinanceScraper(BaseScraper):
 
         url = self.url.replace("{limit}", str(self.limit))
 
-        # 记录开始抓取的日志
-        self.logger.info(f"Starting scraping for Sina Finance with URL: {self.url}")
-
         # 获取代理
         proxies = get_random_proxies()
+        # 记录开始抓取的日志
+        self.logger.info(f"开始抓取新浪财经，URL: {self.url}, 代理: {str(proxies)}")
+
         if proxies is None:
             response = requests.get(url, headers=self.headers)
         else:
@@ -48,11 +48,11 @@ class SinaFinanceScraper(BaseScraper):
 
                 if article.get('content_short') is None:
                     # 如果缺少 'content_short'，记录警告并跳过此项
-                    self.logger.warning(f"Missing 'content_short' for article {item['resource'].get('title', 'Unknown Title')}")
+                    self.logger.warning(f"缺少 'content_short' 字段的文章: {item['resource'].get('title', '未知标题')}")
 
                 scraped_data.append(article)
 
-            self.logger.info(f"Scraping completed for Sina Finance, total articles: {len(scraped_data)}")
+            self.logger.info(f"抓取新浪财经完成，总文章数: {len(scraped_data)}")
 
             return scraped_data
         else:
@@ -71,6 +71,8 @@ class SinaContentScraper(BaseScraper):
         try:
             # 获取代理
             proxies = get_random_proxies()
+            self.logger.info(f"开始抓取新浪财经文章内容，URL: {self.url}, 代理: {str(proxies)}")
+
             if proxies is None:
                 response = requests.get(self.url, headers=self.headers)
             else:
@@ -84,5 +86,5 @@ class SinaContentScraper(BaseScraper):
                     return content.text.strip()
             return None
         except Exception as e:
-            print(f"Error fetching content from {self.url}: {e}")
+            self.logger.error(f"从 {self.url} 获取内容时出错: {e}")
             return None

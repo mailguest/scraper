@@ -34,7 +34,7 @@ def main():
         scheduler_process = start_scheduler()
 
         # 等待调度器启动后启动 API
-        time.sleep(5)
+        time.sleep(60)
         
         # 启动 API 服务
         api_process = start_api()

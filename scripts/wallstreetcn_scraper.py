@@ -20,11 +20,12 @@ class WallStreetCNScraper(BaseScraper):
     def scrape(self):
         url = self.url.replace("{limit}", str(self.limit))
 
-        # 记录开始抓取的日志
-        self.logger.info(f"Starting scraping for WallStreetCN with URL: {self.url}")
-
         # 获取代理
         proxies = get_random_proxies()
+
+        # 记录开始抓取的日志
+        self.logger.info(f"开始抓取 WallStreetCN，URL: {self.url}, 代理: {str(proxies)}")
+
         if proxies is None:
             response = requests.get(url, headers=self.headers)
         else:
@@ -50,11 +51,11 @@ class WallStreetCNScraper(BaseScraper):
 
                 if article.get('content_short') is None:
                     # 如果缺少 'content_short'，记录警告并跳过此项
-                    self.logger.warning(f"Missing 'content_short' for article {item['resource'].get('title', 'Unknown Title')}")
+                    self.logger.warning(f"缺少 'content_short'，文章标题: {item['resource'].get('title', '未知标题')}")
 
                 scraped_data.append(article)
 
-            self.logger.info(f"Scraping completed for WallStreetCN, total articles: {len(scraped_data)}")
+            self.logger.info(f"抓取 WallStreetCN 完成，总文章数: {len(scraped_data)}")
             return scraped_data
         else:
             return []
@@ -81,13 +82,15 @@ class WallStreetCNContentScraper(BaseScraper):
         try:
             # 生成 API 请求链接
             self.__create_content_url()
-            self.logger.info(f"Fetching content from {self.__content_url} ")
+            self.logger.info(f"从 {self.__content_url} 获取内容")
             if self.__content_url is None:
-                self.logger.error("Failed to create content URL.")
+                self.logger.error("生成内容 URL 失败。")
                 return None
             
             # 获取代理
             proxies = get_random_proxies()
+            self.logger.info(f"开始抓取 WallStreetCN 文章内容，URL: {self.url}, 代理: {str(proxies)}")
+
             if proxies is None:
                 response = requests.get(self.__content_url, headers=self.headers)
             else:
@@ -104,10 +107,10 @@ class WallStreetCNContentScraper(BaseScraper):
 
                 return content_text
             else:
-                self.logger.error(f"Failed to fetch content: {response.status_code}")
+                self.logger.error(f"获取内容失败: {response.status_code}")
                 return None
         except Exception as e:
-            self.logger.error(f"Error fetching content from {self.__content_url}, List url is {self.url}: {e}")
+            self.logger.error(f"从 {self.__content_url} 获取内容时出错，列表 URL 为 {self.url}: {e}")
             return None
     
     def __create_content_url(self):
