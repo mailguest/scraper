@@ -5,6 +5,7 @@ from utils.log_utils import setup_logging  # 引入日志工具类
 from datetime import datetime
 import uuid
 from bs4 import BeautifulSoup
+from scripts.scrape_ipproxy import get_random_proxies
 
 class SinaFinanceScraper(BaseScraper):
     """
@@ -21,7 +22,12 @@ class SinaFinanceScraper(BaseScraper):
         # 记录开始抓取的日志
         self.logger.info(f"Starting scraping for Sina Finance with URL: {self.url}")
 
-        response = requests.get(url)
+        # 获取代理
+        proxies = get_random_proxies()
+        if proxies is None:
+            response = requests.get(url, headers=self.headers)
+        else:
+            response = requests.get(url, proxies=proxies, headers=self.headers)
         if response.status_code == 200:
             data = response.json()
             items = data['result']['data']
@@ -63,6 +69,13 @@ class SinaContentScraper(BaseScraper):
     """
     def scrape(self):
         try:
+            # 获取代理
+            proxies = get_random_proxies()
+            if proxies is None:
+                response = requests.get(self.url, headers=self.headers)
+            else:
+                response = requests.get(self.url, proxies=proxies, headers=self.headers)
+
             response = requests.get(self.url)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.content, "html.parser")

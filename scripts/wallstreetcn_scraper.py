@@ -6,7 +6,7 @@ from utils.log_utils import setup_logging  # 引入日志工具类
 from datetime import datetime
 import uuid
 from bs4 import BeautifulSoup
-
+from scripts.scrape_ipproxy import get_random_proxies
 
 class WallStreetCNScraper(BaseScraper):
     """
@@ -23,7 +23,13 @@ class WallStreetCNScraper(BaseScraper):
         # 记录开始抓取的日志
         self.logger.info(f"Starting scraping for WallStreetCN with URL: {self.url}")
 
-        response = requests.get(url)
+        # 获取代理
+        proxies = get_random_proxies()
+        if proxies is None:
+            response = requests.get(url, headers=self.headers)
+        else:
+            response = requests.get(url, proxies=proxies, headers=self.headers)
+        
         if response.status_code == 200:
             data = response.json()
             items = data['data']['items']
@@ -80,6 +86,13 @@ class WallStreetCNContentScraper(BaseScraper):
                 self.logger.error("Failed to create content URL.")
                 return None
             
+            # 获取代理
+            proxies = get_random_proxies()
+            if proxies is None:
+                response = requests.get(self.__content_url, headers=self.headers)
+            else:
+                response = requests.get(self.__content_url, proxies=proxies, headers=self.headers)
+
             response = requests.get(self.__content_url)
             if response.status_code == 200:
                 data = response.json()

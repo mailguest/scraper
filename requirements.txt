@@ -5,6 +5,9 @@ python-dotenv==1.0.1     # 环境变量管理
 schedule==1.2.2
 croniter==3.0.3
 beautifulsoup4==4.12.3
+faiss-cpu==1.9.0
+torch==2.3.0
+lxml==5.3.0
 
 # Testing dependencies (install manually or via a script)
 # pytest==7.4.4
