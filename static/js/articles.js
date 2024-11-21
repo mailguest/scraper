@@ -3,7 +3,7 @@ let totalPages = 1;
 
 function loadArticles() {
     const date = document.getElementById('dateFilter').value;
-    const limit = document.getElementById('pageSize').value;
+    const limit = parseInt(document.getElementById('pageSize').value);
     
     fetch(`/apis/articles?page=${currentPage}&limit=${limit}${date ? '&date=' + date : ''}`)
         .then(response => response.json())
@@ -12,22 +12,32 @@ function loadArticles() {
             tbody.innerHTML = '';
             
             data.items.forEach(article => {
-                const row = `
-                    <tr>
-                        <td>${article.title}</td>
-                        <td>${article.publish_date}</td>
-                        <td>${article.source}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="viewArticle('${article.uuid}')">
-                                <i class="fas fa-eye"></i> 查看
-                            </button>
-                        </td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${article.title}</td>
+                    <td>${article.date}</td>
+                    <td>${article.source}</td>
+                    <td>
+                        <button class="action-btn action-btn-info" onclick="event.stopPropagation()">
+                            查看
+                        </button>
+                    </td>
                 `;
-                tbody.innerHTML += row;
+                
+                // 为整行添加点击事件
+                row.addEventListener('click', () => viewArticle(article.UUID));
+                
+                // 为按钮添加点击事件（阻止事件冒泡）
+                const button = row.querySelector('.action-btn-info');
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    viewArticle(article.UUID);
+                });
+                
+                tbody.appendChild(row);
             });
-
             totalPages = Math.ceil(data.total / limit);
+            // 更新分页
             updatePagination();
         })
         .catch(error => showToast('错误', '加载文章列表失败：' + error.message));
@@ -69,12 +79,16 @@ function viewArticle(uuid) {
         .then(article => {
             const modal = document.getElementById('articleModal');
             document.getElementById('articleContent').innerHTML = `
-                <h3>${article.title}</h3>
-                <p class="article-meta">
-                    发布日期：${article.publish_date} | 
-                    来源：${article.source}
-                </p>
-                <div class="article-body">${article.content}</div>
+                <div class="article-container">
+                    <div class="article-header">
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-meta">
+                            发布日期：${article.date || 'undefined'} | 
+                            来源：${article.source}
+                        </p>
+                    </div>
+                    <div class="article-body">${article.content}</div>
+                </div>
             `;
             modal.style.display = "block";
         })
@@ -84,6 +98,9 @@ function viewArticle(uuid) {
 function closeArticleModal() {
     const modal = document.getElementById('articleModal');
     modal.style.display = "none";
+    
+    // 恢复背景滚动
+    document.body.style.overflow = 'auto';
 }
 
 function refreshCache() {
@@ -114,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onclick = function(event) {
         const modal = document.getElementById('articleModal');
         if (event.target == modal) {
-            modal.style.display = "none";
+            closeArticleModal();
         }
     }
 }); 

@@ -27,16 +27,16 @@ def setup_logging(logger_name, log_file):
     # 设置日志文件路径
     log_path = os.path.join(LOGS_DIR, log_file)
 
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s')
+
     # 使用 TimedRotatingFileHandler，每天切割一次日志，保留 30 天的日志
     file_handler = TimedRotatingFileHandler(log_path, when="midnight", interval=1, backupCount=30)
     file_handler.suffix = "%Y-%m-%d"  # 文件后缀为日期，防止覆盖
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s')
     file_handler.setFormatter(formatter)
 
     # 控制台处理器，将日志输出到控制台
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(level)
     
     # 添加文件和控制台处理器（避免重复添加）
     if not logger.handlers:

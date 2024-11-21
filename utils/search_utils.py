@@ -38,19 +38,29 @@ class SearchUtils():
         """
         filtered_data = self.data
 
-        self.logger.info(f"Filtering data for date: {date_str}, page: {page}, limit: {limit}")
+        self.logger.info(f"Total records before filtered_data : {len(filtered_data)}, page : {page}, limit : {limit}, date_str : {date_str}")
         if date_str is not None:
             filtered_data = [item for item in self.data if 'date' in item and item['date'] == date_str]
-        
+
+        self.logger.info(f"Total records after filtered_data by date : {len(filtered_data)}")
+
         if page and limit:
             # 计算分页数据的起始和结束位置
             start = (page - 1) * limit
             end = start + limit
             filtered_data = filtered_data[start:end]
 
-        self.logger.info(f"Total records after filtering by date: {len(filtered_data)}")
+        self.logger.info(f"Total records after filtered_data by page and limit: {len(filtered_data)}")
         
         return filtered_data
+
+    def get_total_records(self, date_str=None):
+        """
+        获取总记录数
+        """
+        if date_str is not None:
+            return len([item for item in self.data if 'date' in item and item['date'] == date_str])
+        return len(self.data)
     
     def load_data_by_uuid(self, uuid):
         """

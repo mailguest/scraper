@@ -121,14 +121,16 @@ def get_data():
     logger.info("Parameters - page: %d, limit: %d, date: %s", page, limit, date_str)
 
     # 加载缓存中的数据
-    data = get_search(logger).filter_data_by_date(page, limit, date_str)
+    search = get_search(logger)
+    data = search.filter_data_by_date(page, limit, date_str)
+    total = search.get_total_records(date_str)
 
     # 如果请求的页面超出范围，返回空列表
     if not data:
         logger.warning("No data available for the requested page: %d", page)
         return jsonify({"error": "No data available for the requested page"}), 404
 
-    return jsonify(data)
+    return jsonify({"total": total, "items": data})
 
 @app.route('/apis/article/<uuid>', methods=['GET'])
 def get_article(uuid):
@@ -168,10 +170,8 @@ def do_scrape():
     """
     try:
         logger.info("Running manual scraping job...")
-        from scripts.scraper import scrape
-        scrape()
-        from scripts.scrape_content import scrape_all_articles
-        scrape_all_articles(logger)
+        scrape_list(logger)
+        scrape_content(logger)
         logger.info("Manual scraping completed successfully.")
     except Exception as e:
         logger.error(f"Manual scraping failed: {str(e)}")
@@ -279,7 +279,9 @@ def execute_job(job_id):
             
         try:
             # 执行任务
-            function_map[job['function']](logger)
+            func = function_map[job['function']]
+            logger.info(f"Executing job {job_id} with function: {func.__name__}")
+            func(logger)
             return jsonify({"message": f"Job {job_id} executed successfully"})
         except Exception as e:
             logger.error(f"Error executing job {job_id}: {str(e)}")

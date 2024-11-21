@@ -109,7 +109,7 @@ def get_proxies(logger) -> list[IpProxy]:
     return IpProxyMapping(logger).load_proxies()
 
 def get_random_proxies() -> dict:
-   return IpProxyMapping(logger).get_a_proxy_dict()
+   return IpProxyMapping(logger).get_a_proxy()
 
 def save(proxy_json):
     IpProxyMapping(logger).save_proxies(proxy_json)

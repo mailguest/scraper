@@ -43,17 +43,12 @@ def scrape(logger=None):
     try:
         proxy = get_random_proxies()
         logger.info(f"Using proxy: {proxy}")
-        if not proxy:
-            # 处理没有可用代理的情况
-            logger.warning("No proxy available")
-            return
             
         # 确保 proxy 是正确的格式
-        if isinstance(proxy, dict):
+        if proxy and isinstance(proxy, dict):
             proxy_url = f"http://{proxy.get('ip')}:{proxy.get('port')}"  # 使用 get() 方法安全获取值
         else:
-            logger.error("Invalid proxy format")
-            return
+            logger.warning("Invalid proxy format or no proxy available")
             
         websites = load_urls()
         all_scraped_data = []
@@ -73,7 +68,7 @@ def scrape(logger=None):
     except Exception as e:
         if logger:
             logger.error(f"Error in scrape function: {str(e)}")
-        raise
+        raise e
 
 if __name__ == "__main__":
     scrape()

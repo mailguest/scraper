@@ -13,7 +13,7 @@
       "name": "内容爬虫",
       "cron": "30 * * * *",
       "function": "scrape_content",
-      "enabled": false,
+      "enabled": true,
       "description": "爬取文章详细内容"
     },
     {
