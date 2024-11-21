@@ -1,47 +1,124 @@
+from dataclasses import dataclass
 import requests
 import os
 import json
 from lxml import etree
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import random
+from config.config import Config
+from utils.log_utils import setup_logging
 
 # 免费海外代理 ip 页
 FREE_IP_URL = 'https://www.iphaiwai.com/free'
 # 验证网站
 VERIFY_URL = 'https://httpbin.org/ip'
 
+# 使用日志工具类设置日志
+logger = setup_logging("scrape_ipproxy", "scrape_ipproxy.log")
+
+@dataclass
 class IpProxy:
-    def __init__(self, ip, port, area, period_of_validity):
-        self.ip = ip + ':' + port
-        self.area = area
-        self.period_of_validity = period_of_validity
+    ip: str
+    port: str
+    area: str
+    period_of_validity: str
+    status: int = 1
 
-# proxy_ip_list : list[IpProxy] = []
+class IpProxyMapping():
+    def __init__(self, logger):
+        self.file_path = Config.IP_PROXY_FILE
+        self.logger = logger
 
-def get_random_proxies() -> dict:
-    """
-    随机获取一个代理 ip
-    """
-    dir_path = os.path.abspath("data")
-    file_path = os.path.join(dir_path, "ip_proxies.json")
-    if not os.path.exists(file_path):
-        return None
-    with open(file_path, 'r', encoding='utf-8') as f:
-        proxy_ip_list = json.load(f)
-
-    if proxy_ip_list is None or len(proxy_ip_list) == 0:
+    def load_proxies(self) -> list[IpProxy]:
+        if not os.path.exists(self.file_path):
+            return []
+        with open(self.file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            if not content:
+                return []
+            proxy_ip_list = json.loads(content, object_hook=lambda d: IpProxy(**d))
+        return proxy_ip_list
+    
+    def get_proxy_by_ip(self, ip: str, port: str) -> IpProxy:
+        proxies = self.load_proxies()
+        for proxy in proxies:
+            if proxy.ip == ip and proxy.port == port:
+                return proxy
         return None
     
-    import random
-    proxy = random.choice(proxy_ip_list)
-    return OverseasFree.get_proxies(proxy.ip)
+    def get_a_proxy(self) -> dict:
+        proxies = self.load_proxies()
+        if not proxies:
+            return None
+        proxies = [proxy for proxy in proxies if proxy.status == 1]
+        proxy = random.choice(proxies)
+        return get_proxies_dict(proxy)
+    
+    def save_proxies(self, proxies: list[IpProxy]):
+        try:
+            with open(self.file_path, 'w', encoding='utf-8') as f:
+                json.dump([proxy.__dict__ for proxy in proxies], f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            self.logger.error(f"save proxies error: {e}")
+            return False
 
+    def add_proxy(self, proxy: IpProxy):
+        proxies = self.load_proxies()
+        proxies.append(proxy)
+        return self.save_proxies(proxies)
+
+    def delete_proxy(self, ip: str):
+        proxies = self.load_proxies()
+        proxies = [proxy for proxy in proxies if proxy.ip != ip]
+        return self.save_proxies(proxies)
+
+
+    def update_proxy(self, updated_proxy: IpProxy):
+        proxies = self.load_proxies()
+        for i, proxy in enumerate(proxies):
+            if proxy.ip == updated_proxy.ip:
+                proxies[i] = updated_proxy
+                break
+        return self.save_proxies(proxies)
+
+def get_proxies_dict(proxy: IpProxy) -> dict:
+    proxies = {
+        "http": "http://%(proxy)s/" % {"proxy": proxy.ip + ':' + proxy.port},
+        "https": "http://%(proxy)s/" % {"proxy": proxy.ip + ':' + proxy.port}
+    }
+    return proxies
+
+def test_proxy(proxy_ip_data: IpProxy):
+    proxies = get_proxies_dict(proxy_ip_data)
+    try:
+        # 验证可用性, 国内环境无法访问该网站
+        response = requests.get(url=VERIFY_URL, proxies=proxies, timeout=20)
+        response.encoding = 'utf-8'
+        # <title>WhatsApp Web</title>
+        if response.status_code == 200:
+            return True
+        else:
+            proxy_ip_data.status = 0
+            return False
+    except Exception as e:
+        proxy_ip_data.status = 0
+        return False
+
+def get_proxies(logger) -> list[IpProxy]:
+    return IpProxyMapping(logger).load_proxies()
+
+def get_random_proxies() -> dict:
+   return IpProxyMapping(logger).get_a_proxy_dict()
 
 def save(proxy_json):
-    dir_path = os.path.abspath("data")
-    file_path = os.path.join(dir_path, "ip_proxies.json")
-    # 将内容保存为 JSON 文件
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(proxy_json)
+    IpProxyMapping(logger).save_proxies(proxy_json)
+
+def delete(proxy_ip_data: IpProxy):
+    IpProxyMapping(logger).delete_proxy(proxy_ip_data.ip)
+
+def find(ip: str, port: str):
+    return IpProxyMapping(logger).get_proxy_by_ip(ip, port)
 
 class OverseasFree:
     def __init__(self, logger):
@@ -51,36 +128,18 @@ class OverseasFree:
         }
         self.effective_ip_list : list[IpProxy] = []
         self.logger = logger
-
-    @staticmethod
-    def get_proxies(proxy: str) -> dict:
-        proxies = {
-            "http": "http://%(proxy)s/" % {"proxy": proxy},
-            "https": "http://%(proxy)s/" % {"proxy": proxy}
-        }
-        return proxies
+        self.ip_proxy_mapping = IpProxyMapping(logger)
 
     def verify_ip(self, proxy_ip_data: IpProxy):
         """
         验证 ip 可用性
         :param proxy_ip_data: 获取到的免费海外代理 ip
         """
-        # 获取代理 ip
-        proxy = proxy_ip_data.ip
-        proxies = self.get_proxies(proxy)
-
-        try:
-            # 验证可用性, 国内环境无法访问该网站
-            response = requests.get(url=VERIFY_URL, proxies=proxies, timeout=20)
-            response.encoding = 'utf-8'
-            # <title>WhatsApp Web</title>
-            if response.status_code == 200:
-                self.logger.info(f"代理 {proxy} 可用，返回IP: {response.json()['origin']}")
-                self.effective_ip_list.append(proxy_ip_data)
-            else:
-                self.logger.error(f"代理 {proxy} 不可用，状态码: {response.status_code}")
-        except Exception as e:
-            self.logger.error(f"代理 {proxy} 测试失败: {e}")
+        if not test_proxy(proxy_ip_data):
+            self.logger.error(f"代理 {proxy_ip_data.ip} 不可用")
+        else:
+            self.logger.info(f"代理 {proxy_ip_data.ip} 可用")
+            self.effective_ip_list.append(proxy_ip_data)
 
     def get_data(self) -> list[IpProxy]:
         """
@@ -106,19 +165,15 @@ class OverseasFree:
         # 获取所有的免费代理 ip
         proxy_data_list = self.get_data()
 
-        # 验证 ip 可用性
-        with ThreadPoolExecutor(max_workers=12) as executor:
-            futures = [executor.submit(self.verify_ip, proxy) for proxy in proxy_data_list]
-        verify_result = [future.result() for future in as_completed(futures)]
-        if verify_result:
-            # 处理返回的数据
-            pass
+        if not proxy_data_list:
+            self.logger.error('get ip error: no data')
+            return
 
-        # 打印所有的有效 ip
-        proxy_json = json.dumps([proxy.__dict__ for proxy in self.effective_ip_list], ensure_ascii=False, indent=4)
-        self.logger.info(proxy_json)
-        self.logger.info('Get IP Number: %d' % len(self.effective_ip_list))
-        save(proxy_json)
+        # 验证 ip 可用性
+        for proxy_data in proxy_data_list:
+            self.verify_ip(proxy_data)
+
+        self.ip_proxy_mapping.save_proxies(self.effective_ip_list)
 
 
 def scrape_ipproxies(logger):

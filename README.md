@@ -15,26 +15,16 @@
 ## 项目结构
 
 ```bash
-.
 ├── /api/                           # Flask API 逻辑
-│   └── api.py                      # 主 API 服务文件
 ├── /config/                        # 配置文件
-│   └── urls.json                   # 爬虫目标配置文件
 ├── /data/                          # 爬取的数据存放目录
 ├── /logs/                          # 日志文件存放目录
-├── /scripts/                       # 爬虫脚本及基类
-│   ├── base_scraper.py             # 父类 BaseScraper，定义爬虫通用行为
-│   ├── wallstreetcn_scraper.py     # 华尔街见闻爬虫实现
-│   └── sina_finance_scraper.py     # 新浪财经爬虫实现
+├── /scripts/                       # 脚本及业务类
+├── /static/                        # 静态文件
+├── /templates/                     # 模板文件
 ├── /tests/                         # 测试目录
-│   └── test_scraper.py             # 测试脚本
 ├── /utils/                         # 工具类目录
-│   └── log_utils.py                # 日志工具类文件
 ├── run.py                          # 统一启动脚本
-├── requirements.txt                # Python 依赖文件
-├── Dockerfile                      # Docker 镜像构建文件
-├── docker-compose.yml              # Docker Compose 配置文件
-└── README.md                       # 项目说明文件
 ```
 
 ## 环境配置
@@ -190,4 +180,3 @@ curl "http://localhost:5001/data?page=1&limit=10&date=2024-10-22"
 3. **API**：API 服务在 `http://localhost:5001` 运行，支持通过日期和分页获取数据。
 
 如果有其他问题，欢迎告诉我！
-```

@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}IP代理列表{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/proxy.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>IP代理管理</h1>
+    <div class="proxy-list">
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="refreshProxies()">刷新代理</button>
+            <span class="proxy-count">当前可用代理：<span id="proxyCount">0</span></span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>IP地址</th>
+                    <th>端口</th>
+                    <th>地区</th>
+                    <th>有效期</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="proxyTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/proxy.js') }}"></script>
+{% endblock %} 

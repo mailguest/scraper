@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}文章管理{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/articles.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>文章管理</h1>
+    <div class="job-list">
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="refreshCache()">
+                <i class="fas fa-sync-alt"></i> 刷新缓存
+            </button>
+            <button class="btn btn-primary" onclick="startScrape()">
+                <i class="fas fa-spider"></i> 立即爬取
+            </button>
+        </div>
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>日期：</label>
+                <input type="date" id="dateFilter" onchange="loadArticles()">
+            </div>
+            <div class="filter-item">
+                <label>每页显示：</label>
+                <select id="pageSize" onchange="loadArticles()">
+                    <option value="10">10条</option>
+                    <option value="20">20条</option>
+                    <option value="50">50条</option>
+                </select>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>发布日期</th>
+                    <th>来源</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="articlesTable">
+            </tbody>
+        </table>
+        <div class="pagination" id="pagination">
+        </div>
+    </div>
+</div>
+
+<!-- 文章详情模态框 -->
+<div id="articleModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeArticleModal()">&times;</span>
+        <h2>文章详情</h2>
+        <div id="articleContent">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/articles.js') }}"></script>
+{% endblock %} 

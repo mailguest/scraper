@@ -2,6 +2,7 @@ import json
 from scripts.factory import ScraperFactory
 from datetime import datetime
 import os
+from scripts.scrape_ipproxy import get_random_proxies
 
 # 加载 URLs 配置文件
 def load_urls():
@@ -38,21 +39,41 @@ def save_data(new_data):
         print("No new unique data to add.")
 
 # 主抓取逻辑
-def scrape():
-    websites = load_urls()
-    all_scraped_data = []
+def scrape(logger=None):
+    try:
+        proxy = get_random_proxies()
+        logger.info(f"Using proxy: {proxy}")
+        if not proxy:
+            # 处理没有可用代理的情况
+            logger.warning("No proxy available")
+            return
+            
+        # 确保 proxy 是正确的格式
+        if isinstance(proxy, dict):
+            proxy_url = f"http://{proxy.get('ip')}:{proxy.get('port')}"  # 使用 get() 方法安全获取值
+        else:
+            logger.error("Invalid proxy format")
+            return
+            
+        websites = load_urls()
+        all_scraped_data = []
 
-    for site in websites:
-        try:
-            scraper = ScraperFactory.create_scraper(site["name"], site["url"], site["limit"])
-            scraped_data = scraper.scrape()
-            if scraped_data:
-                all_scraped_data.extend(scraped_data)  # 将每个网站的数据加入到总数据中
-        except ValueError as e:
-            print(e)
-    
-    if all_scraped_data:
-        save_data(all_scraped_data)  # 保存所有网站的抓取数据到一个文件
+        for site in websites:
+            try:
+                scraper = ScraperFactory.create_scraper(site["name"], site["url"], site["limit"])
+                scraped_data = scraper.scrape()
+                if scraped_data:
+                    all_scraped_data.extend(scraped_data)  # 将每个网站的数据加入到总数据中
+            except ValueError as e:
+                logger.error(f"Error scraping {site['name']}: {e}")
+        
+        if all_scraped_data:
+            save_data(all_scraped_data)  # 保存所有网站的抓取数据到一个文件
+
+    except Exception as e:
+        if logger:
+            logger.error(f"Error in scrape function: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     scrape()

@@ -11,6 +11,9 @@ class Config:
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     SCHEDULER_SCRIPT = os.path.join(BASE_DIR, "scripts/scheduler.py")
     API_SCRIPT = os.path.join(BASE_DIR, "apis/api.py")
+
+    # 存储路径
+    IP_PROXY_FILE = os.path.join(BASE_DIR, "data/ip_proxies.json")
     
     # 日志配置
     LOG_DIR = os.path.join(BASE_DIR, "logs")
