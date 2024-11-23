@@ -13,7 +13,7 @@ class Config:
 
     # 执行程序配置
     SCHEDULER_SCRIPT = os.path.join(BASE_DIR, "scripts/scheduler.py")
-    API_SCRIPT = os.path.join(BASE_DIR, "apis/api.py")
+    API_SCRIPT = os.path.join(BASE_DIR, "apis/app.py")
 
     # 存储路径
     IP_PROXY_FILE = os.path.join(BASE_DIR, "data/ip_proxies.json")
