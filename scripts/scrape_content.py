@@ -15,7 +15,11 @@ def scrape_article_content(article: Article, logger):
         # logger.warning(f"Scraper not found for {article['source']}. Skipping...")
         return 
     
-    content, status = scraper.scrape()
+    try:
+        content, status = scraper.scrape() or (None, "failed")
+    except (TypeError, ValueError) as e:
+        logger.error(f"抓取失败: {str(e)}")
+        return
     
     if content:
         article.content = content

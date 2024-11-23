@@ -154,15 +154,16 @@ class ArticleMapper:
             if value is not None
         }
 
-        if article.get('date', None):
-            # 将日期字符串转换为日期对象
-            target_date = datetime.strptime(article.get('date'), '%Y-%m-%d')
-            next_date = target_date + timedelta(days=1)
-            query['date'] = {
-                '$gte': target_date.strftime('%Y-%m-%d'),
-                '$lt': next_date.strftime('%Y-%m-%d')
-            }
-
+        if article.get('date'):
+            date_str = article.get('date')
+            if isinstance(date_str, str):  # 确保是字符串类型
+                target_date = datetime.strptime(date_str, '%Y-%m-%d')
+                next_date = target_date + timedelta(days=1)
+                query['date'] = {
+                    '$gte': target_date.strftime('%Y-%m-%d'),
+                    '$lt': next_date.strftime('%Y-%m-%d')
+                }
+        
         return self.get_articles(page, per_page, query)
         
     def get_articles(self, page: int = 1, per_page: int = 10, filter: dict = {}) -> Dict:
