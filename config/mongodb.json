@@ -1,5 +1,6 @@
 {
     "host": "localhost",
     "port": 27017,
-    "database": "scraper"
+    "database": "scraper",
+    "docker_host": "mongodb"
 } 

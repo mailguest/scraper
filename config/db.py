@@ -17,7 +17,10 @@ class DBConfig:
             with open(config_path, 'r') as f:
                 config = json.load(f)
 
-            self.client = MongoClient(host=config['host'], port=config['port'], maxpoolsize=10)
+            # 根据环境变量判断使用哪个 host
+            host = config['docker_host'] if os.getenv('DOCKER_ENV') else config['host']
+            
+            self.client = MongoClient(host=host, port=config['port'], maxpoolsize=10)
             self.db = self.client[config['database']]
 
     def get_collection(self, table_name: str):

@@ -7,21 +7,37 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ${PWD}/data:/app/data  # 将当前目录的 data 文件夹挂载到容器内的 /app/data
-      - ${PWD}/logs:/app/logs  # 将当前目录的 logs 文件夹挂载到容器内的 /app/logs
-    depends_on:
-      - faiss
+      - ${PWD}/data:/app/data
+      - ${PWD}/logs:/app/logs
+      - ${PWD}/scripts:/app/scripts
+      - ${PWD}/static:/app/static
+      - ${PWD}/templates:/app/templates
+      - ${PWD}/utils:/app/utils
+      - ${PWD}/apis:/app/apis
+      - ${PWD}/config:/app/config
     environment:
-      - DATA_DIR=/app/data   # Docker 容器内的路径
-      - LOGS_DIR=/app/logs   # Docker 容器内的路径    
-      - FAISS_HOST=faiss     # 依赖的 faiss 服务的 host
-      - FAISS_PORT=5002      # 依赖的 faiss 服务的 port
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - DATA_DIR=/app/data
+      - LOGS_DIR=/app/logs
+      - DOCKER_ENV=true
+    depends_on:
+      - mongodb
     networks:
       - scraper-network
 
-  faiss:
-    image: faiss
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - scraper-network
 
-  networks:
-    scraper-network:
-      driver: bridge
+volumes:
+  mongodb_data:
+
+networks:
+  scraper-network:
+    driver: bridge
