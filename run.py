@@ -1,6 +1,7 @@
 import subprocess
 import os
 import signal
+import time
 from typing import Optional
 from dataclasses import dataclass
 from config.config import Config
@@ -54,12 +55,29 @@ class ProcessManager:
                 info.process.kill()
 
     def _create_api_process(self) -> ProcessUtils:
+        """
+        web 子进程
+        """
         return ProcessUtils(
             process_name="Flask API server",
             root_path=Config.BASE_DIR,
             script_path=Config.API_SCRIPT,
             log_file_name="api.log", 
-            logger=logger)
+            logger=logger
+        )
+    
+    def _create_scheduler_process(self) -> ProcessUtils:
+        """
+        调度器子进程
+        """
+        return ProcessUtils(
+            process_name="Schedule server",
+            root_path=Config.BASE_DIR,
+            script_path=Config.SCHEDULER_SCRIPT,
+            log_file_name="scheduler.log",
+            logger=logger
+        )
+
 
 def main():
     logger.info("Starting the API server...")
@@ -72,9 +90,22 @@ def main():
         if not api_process:
             raise RuntimeError("Failed to start API. Exiting.")
         
+        # 启动调度器
+        scheduler_process = process_manager.start_process(
+            "scheduler", 
+            process_manager._create_scheduler_process())
+        if not scheduler_process:
+            raise RuntimeError("Failed to start Scheduler. Exiting.")
+        
         # 保持程序运行
         while process_manager.should_run:
-            import time
+            # 检查子进程状态
+            if api_process and api_process.process.poll() is not None:
+                logger.error("API 进程意外终止")
+                break
+            if scheduler_process and scheduler_process.process.poll() is not None:
+                logger.error("调度器进程意外终止")
+                break
             time.sleep(1)
     
     except Exception as e:

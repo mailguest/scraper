@@ -1,5 +1,6 @@
 # wallstreetcn_scraper.py
 import json
+from httpcore import ProxyError
 import requests
 from scripts.base_scraper import BaseScraper
 from utils.log_utils import setup_logging  # 引入日志工具类
@@ -33,7 +34,12 @@ class WallStreetCNScraper(BaseScraper):
         if proxies is None:
             response = requests.get(self.url, headers=self.headers)
         else:
-            response = requests.get(self.url, proxies=proxies, headers=self.headers)
+            try:
+                response = requests.get(self.url, proxies=proxies, headers=self.headers)
+            except Exception as e:
+                self.logger.error(f"代理获取失败，使用普通请求: {e}")
+            finally:
+                response = requests.get(self.url, headers=self.headers)
         
         scraped_data: list[Article] = []
         
@@ -63,7 +69,7 @@ class WallStreetCNScraper(BaseScraper):
             UUID=uuid.uuid5(uuid.NAMESPACE_DNS, item['title']).hex,
             title=item['title'],
             content=None,
-            content_short=item.get('content_short', None),
+            content_short=item.get('content_short', item['title']),
             date=date,
             source='WallStreetCN',  # 增加文章来源字段
             list_uri=item['uri'].split("?")[0],  # 去掉 URL 中的查询参数
@@ -99,7 +105,6 @@ class WallStreetCNContentScraper(BaseScraper):
         try:
             # 生成 API 请求链接
             self.__set_content_url()
-            self.logger.info(f"从 {self.__content_url} 获取内容")
             if self.__content_url is None:
                 self.logger.error("生成内容 URL 失败。")
                 return None
@@ -111,24 +116,31 @@ class WallStreetCNContentScraper(BaseScraper):
             if proxies is None:
                 response = requests.get(self.__content_url, headers=self.headers)
             else:
-                response = requests.get(self.__content_url, proxies=proxies, headers=self.headers)
+                try:
+                    response = requests.get(self.__content_url, proxies=proxies, headers=self.headers)
+                except Exception as e:
+                    self.logger.error(f"代理获取失败，使用普通请求: {e}")
+                finally:
+                    response = requests.get(self.__content_url, headers=self.headers)
 
-            response = requests.get(self.__content_url)
             if response.status_code == 200:
                 data = response.json()
 
                 # 获取文章的主要内容并去除 HTML 标签
-                content_html = data['data']['content']
+                content_html = data['data'].get('content', None)
+                if content_html is None:
+                    self.logger.error(f"获取内容失败: {data.get('message', None)} code: {data.get('code', None)}")
+                    return None, "failed"
                 soup = BeautifulSoup(content_html, "html.parser")
                 content_text = soup.get_text(strip=True)  # 去除 HTML 标签，获取纯文本
 
-                return content_text
+                return content_text, "success"
             else:
                 self.logger.error(f"获取内容失败: {response.status_code}")
-                return None
+                return None, "failed"
         except Exception as e:
             self.logger.error(f"从 {self.__content_url} 获取内容时出错，列表 URL 为 {self.url}: {e}")
-            return None
+            return None, "pending"
     
     def __set_content_url(self):
         # 从 uri 中提取文章 ID 并生成 API 请求链接

@@ -1,11 +1,14 @@
+from datetime import date
 from flask import Flask, jsonify, request, render_template # 导入 Flask 框架
+from utils import Article
 from utils.log_utils import setup_logging # 导入日志工具
 import json
 from pathlib import Path
 import os
 from scripts.scrape_list import scrape as scrape_list  # 列表爬虫
-from scripts.scrape_content import scrape_all_articles as scrape_content  # 内容爬虫
+from scripts.scrape_content import scrape_all_articles
 import scripts.scrape_ipproxy as ipproxy
+from config.db import DBConfig
 from utils.ArticleMapper import ArticleMapper
 
 # 获取当前文件所在目录的上级目录（项目根目录）
@@ -21,10 +24,12 @@ app = Flask(__name__,
 # 使用日志工具类设置日志
 logger = setup_logging("API", "api.log")
 
+# 初始化MongoDB连接
+app.config['db'] = DBConfig()
+article_mapper = ArticleMapper(db=app.config['db'], logger=logger)
+
 # 添加新的路由处理定时任务相关的请求
 CONFIG_PATH = Path("config/schedule_config.json")
-
-article_mapper = ArticleMapper()
 
 def load_schedule_config():
     """加载定时任务配置"""
@@ -113,12 +118,18 @@ def get_data():
     # 获取查询参数 page, limit 和 date，设置默认值
     page = int(request.args.get('page', 1))  # 默认为第一页
     limit = int(request.args.get('limit', 10))  # 默认为每页 10 条数据
-    date_str = request.args.get('date', None)  # 如果提供了日期，按日期过滤
 
-    logger.info("Parameters - page: %d, limit: %d, date: %s", page, limit, date_str)
+
+    article_filter = {
+        "date": request.args.get('date', None),  # 如果提供了日期，按日期过滤
+        "source": request.args.get('source', None), # 如果提供了来源，按来源过滤
+        "status": request.args.get('status', None)
+    }
+
+    logger.info(f"Parameters - get_data: article_filter={article_filter}, page={page}, limit={limit}")
 
     # 加载缓存中的数据
-    data = article_mapper.get_articles(page, limit, date_str)
+    data = article_mapper.get_articles_by_article(article_filter, page, limit)
 
     # 如果请求的页面超出范围，返回空列表
     if not data or not data['items']:
@@ -147,6 +158,7 @@ def get_article(uuid):
 
 @app.route('/apis/article/<uuid>', methods=['DELETE'])
 def delete_article(uuid):
+    
     article_mapper.delete_article(uuid)
     return jsonify({"message": "Article deleted"}), 204
 
@@ -158,7 +170,7 @@ def do_scrape():
     try:
         logger.info("Running manual scraping job...")
         scrape_list(logger)
-        scrape_content(logger)
+        scrape_all_articles(logger)
         logger.info("Manual scraping completed successfully.")
     except Exception as e:
         logger.error(f"Manual scraping failed: {str(e)}")
@@ -197,7 +209,10 @@ def get_job(job_id):
 def create_job():
     """创建新的定时任务"""
     try:
-        new_job = request.json
+        new_job = request.get_json()
+        if not hasattr(new_job, "id"):
+            return jsonify({"error": "无效的任务数据"}), 400
+
         config = load_schedule_config()
         
         # 检查ID是否已存在
@@ -257,7 +272,7 @@ def execute_job(job_id):
         # 根据function名称执行相应的函数
         function_map = {
             "scrape_list": scrape_list,
-            "scrape_content": scrape_content,
+            "scrape_content": scrape_all_articles,
             "scrape_ip_proxies": ipproxy.scrape_ipproxies
         }
         
@@ -305,6 +320,7 @@ def toggle_job(job_id):
     except Exception as e:
         logger.error(f"Error toggling job {job_id}: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     logger.info("Starting API server...")

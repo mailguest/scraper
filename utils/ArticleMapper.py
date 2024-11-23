@@ -1,30 +1,26 @@
-from pymongo import MongoClient
-import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import os
 from .Article import Article
 from utils.log_utils import setup_logging
+from config.db import DBConfig
+from flask import current_app
 
 class ArticleMapper:
-    def __init__(self, logger=None):
+    def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("ArticleMapper", "ArticleMapper.log") 
+        # 获取集合
+        self.collection = current_app.config["db"].get_collection('articles') if db is None else db.get_collection('articles')
 
-        # 读取配置文件
-        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'mongodb.json')
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        
-        # 建立MongoDB连接
-        self.client = MongoClient(host=config['host'], port=config['port'])
-        self.db = self.client[config['database']]
-        self.collection = self.db[config['collections']['articles']]
-        
-        # 创建索引
-        self.collection.create_index('UUID', unique=True)
-        self.collection.create_index('date')
-        self.collection.create_index('source')
-        self.collection.create_index('list_uri')
+        if not logger:
+            self.logger = setup_logging("ArticleMapper", "ArticleMapper.log")
+
+        # 判断索引是否存在
+        if not self.collection.index_information().get('UUID_1'):
+            # 创建索引
+            self.collection.create_index('UUID', unique=True)
+            self.collection.create_index('date')
+            self.collection.create_index('source')
+            self.collection.create_index('list_uri')
 
     def insert_article(self, article: Article) -> bool:
         """
@@ -92,17 +88,31 @@ class ArticleMapper:
         """
         try:
             articles_dict = self.collection.find({'status': status}).sort('date', -1)
-            return [Article.from_dict(article) for article in articles_dict]
+            articles = [article for article in map(Article.from_dict, articles_dict) if article is not None]
+            return articles
         except Exception as e:
             self.logger.error(f"Error getting articles by status: {str(e)}")
             return []
         
-    def get_count_articles(self, filters: Dict = None) -> int:
+    def get_count_articles(self, date_str: Optional[str] = None) -> int:
         """
         获取文章总数
         """
         try:
-            return self.collection.count_documents(filters if filters else {})
+            query = {}
+            if date_str:
+                # 将日期字符串转换为日期对象
+                target_date = datetime.strptime(date_str, '%Y-%m-%d')
+                next_date = target_date + timedelta(days=1)
+                
+                # 使用日期范围查询
+                query = {
+                    'date': {
+                        '$gte': target_date.strftime('%Y-%m-%d'),
+                        '$lt': next_date.strftime('%Y-%m-%d')
+                    }
+                }
+            return self.collection.count_documents(query)
         except Exception as e:
             self.logger.error(f"Error getting count of articles: {str(e)}")
             return 0
@@ -111,17 +121,58 @@ class ArticleMapper:
         """
         获取所有文章
         """
-        return self.collection.find().sort('date', -1)
+        try:
+            articles_dict = self.collection.find().sort('date', -1)
+            articles = [article for article in map(Article.from_dict, articles_dict) if article is not None]
+            return articles
+        except Exception as e:
+            self.logger.error(f"Error getting all articles: {str(e)}")
+            return []
 
-    def get_articles(self, page: int = 1, per_page: int = 10, filters: Dict = None) -> Dict:
+    def get_articles_by_article(self, article: Optional[dict], page: int = 1, per_page: int = 10) -> Dict:
+        """
+        获取文章列表，支持分页和过滤
+        """
+        if article is None:
+            self.logger.error(f"参数错误: article 不能为空")
+            return {'total': 0, 'items': [], 'page': page, 'per_page': per_page, 'total_pages': 0}
+
+        # 定义需要检查的字段映射
+        field_mappings = {
+            'UUID': article.get('UUID'),
+            'title': article.get('title'),
+            'list_uri': article.get('list_uri'),
+            'content_uri': article.get('content_uri'),
+            'source': article.get('source'),
+            'status': article.get('status')
+        }
+        
+        # 构建查询字典
+        query = {
+            field: value 
+            for field, value in field_mappings.items() 
+            if value is not None
+        }
+
+        if article.get('date', None):
+            # 将日期字符串转换为日期对象
+            target_date = datetime.strptime(article.get('date'), '%Y-%m-%d')
+            next_date = target_date + timedelta(days=1)
+            query['date'] = {
+                '$gte': target_date.strftime('%Y-%m-%d'),
+                '$lt': next_date.strftime('%Y-%m-%d')
+            }
+
+        return self.get_articles(page, per_page, query)
+        
+    def get_articles(self, page: int = 1, per_page: int = 10, filter: dict = {}) -> Dict:
         """
         获取文章列表，支持分页和过滤
         """
         try:
-            query = filters if filters else {}
-            total = self.collection.count_documents(query)
+            total = self.collection.count_documents(filter)
             
-            articles_cursor = self.collection.find(query)\
+            articles_cursor = self.collection.find(filter)\
                 .sort('date', -1)\
                 .skip((page - 1) * per_page)\
                 .limit(per_page)
@@ -183,7 +234,8 @@ class ArticleMapper:
                 }
             }
             articles_dict = self.collection.find(query).sort('date', -1)
-            return [Article.from_dict(article) for article in articles_dict]
+            articles = [article for article in map(Article.from_dict, articles_dict) if article is not None]
+            return articles
         except Exception as e:
             self.logger.error(f"Error getting articles by date range: {str(e)}")
             return []
@@ -194,17 +246,8 @@ class ArticleMapper:
         """
         try:
             articles_dict = self.collection.find({'source': source}).sort('date', -1)
-            return [Article.from_dict(article) for article in articles_dict]
+            articles = [article for article in map(Article.from_dict, articles_dict) if article is not None]
+            return articles
         except Exception as e:
             self.logger.error(f"Error getting articles by source: {str(e)}")
             return []
-        
-    def close(self):
-        self.__del__()
-
-    def __del__(self):
-        """
-        确保关闭数据库连接
-        """
-        if hasattr(self, 'client'):
-            self.client.close() 

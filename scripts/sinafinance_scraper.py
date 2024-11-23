@@ -1,4 +1,5 @@
 # sina_finance_scraper.py
+from httpcore import ProxyError
 import requests
 from scripts.base_scraper import BaseScraper
 from utils.log_utils import setup_logging  # 引入日志工具类
@@ -30,7 +31,13 @@ class SinaFinanceScraper(BaseScraper):
         if proxies is None:
             response = requests.get(self.url, headers=self.headers)
         else:
-            response = requests.get(self.url, proxies=proxies, headers=self.headers)
+            try:
+                response = requests.get(self.url, proxies=proxies, headers=self.headers)
+            except Exception as e:
+                self.logger.error(f"代理获取失败，使用普通请求: {e}")
+            finally:
+                response = requests.get(self.url, headers=self.headers)
+
         if response.status_code == 200:
             data = response.json()
             items = data['result']['data']
@@ -70,10 +77,10 @@ class SinaContentScraper(BaseScraper):
 
     def scrape(self):
         try:
-            return None
+            return None, "pending"
         except Exception as e:
             self.logger.error(f"从 {self.url} 获取内容时出错: {e}")
-            return None
+            return None, "failed"
         
     def get_connect_url(self):
         return self.url

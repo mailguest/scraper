@@ -3,64 +3,86 @@ let totalPages = 1;
 
 function loadArticles() {
     const date = document.getElementById('dateFilter').value;
+    const source = document.getElementById('source').value;
+    const status = document.getElementById('status').value;
     const limit = parseInt(document.getElementById('pageSize').value);
     
-    fetch(`/apis/articles?page=${currentPage}&limit=${limit}${date ? '&date=' + date : ''}`)
+    fetch(`/apis/articles?page=${currentPage}&limit=${limit}${date ? '&date=' + date : ''}${source ? '&source=' + source : ''}${status ? '&status=' + status : ''}`)
         .then(response => response.json())
         .then(data => {
             const tbody = document.getElementById('articlesTable');
             tbody.innerHTML = '';
-            
-            data.items.forEach(article => {
+
+            // 检查数据是否为空
+            if (!data.items || data.items.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="article-title-cell" title="${article.title}">
-                        <div class="article-title-text">${article.title}</div>
-                    </td>
-                    <td>${article.date}</td>
-                    <td>${article.source}</td>
-                    <td class="action-column">
-                        <button class="action-btn action-btn-info" onclick="event.stopPropagation()">
-                            查看
-                        </button>
-                        <button class="action-btn action-btn-danger" onclick="event.stopPropagation()">
-                            删除
-                        </button>
+                    <td colspan="5" style="text-align: center; padding: 20px;">
+                        暂无文章数据
                     </td>
                 `;
-                
-                // 为整行添加点击事件
-                row.addEventListener('click', () => viewArticle(article.UUID));
-                
-                // 为查看按钮添加点击事件
-                const viewButton = row.querySelector('.action-btn-info');
-                viewButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    viewArticle(article.UUID);
-                });
-                
-                // 为删除按钮添加点击事件
-                const deleteButton = row.querySelector('.action-btn-danger');
-                deleteButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (confirm('确定要删除这篇文章吗？')) {
-                        deleteArticle(article.UUID);
-                    }
-                });
-                
                 tbody.appendChild(row);
-            });
-            totalPages = data.total_pages;
+                totalPages = 1;
+            } else {
+                data.items.forEach(article => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="article-title-cell" title="${article.title}">
+                            <div class="article-title-text">${article.title}</div>
+                        </td>
+                        <td>${article.date}</td>
+                        <td>${article.source}</td>
+                        <td>${article.status}</td>
+                        <td class="action-column">
+                            <button class="action-btn action-btn-info" onclick="event.stopPropagation()">
+                                查看
+                            </button>
+                            <button class="action-btn action-btn-danger" onclick="event.stopPropagation()">
+                                删除
+                            </button>
+                        </td>
+                    `;
+                    
+                    // 为整行添加点击事件
+                    row.addEventListener('click', () => viewArticle(article.UUID));
+                    
+                    // 为查看按钮添加点击事件
+                    const viewButton = row.querySelector('.action-btn-info');
+                    viewButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        viewArticle(article.UUID);
+                    });
+                    
+                    // 为删除按钮添加点击事件
+                    const deleteButton = row.querySelector('.action-btn-danger');
+                    deleteButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm('确定要删除这篇文章吗？')) {
+                            deleteArticle(article.UUID);
+                        }
+                    });
+                    
+                    tbody.appendChild(row);
+                });
+                totalPages = data.total_pages;
+                
+            }
             // 更新分页
             updatePagination();
         })
-        .catch(error => showToast('错误', '加载文章列表失败：' + error.message));
+        .catch(
+            error => {
+                showToast('error', '加载文章列表失败：' + error.message);
+        });
 }
 
 function updatePagination() {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
-
+    // 如果总页数为1，清空分页并推出
+    if (totalPages <= 1) {
+        return;
+    }
     // 添加"上一页"按钮
     if (currentPage > 1) {
         pagination.innerHTML += `
@@ -155,7 +177,7 @@ function updatePagination() {
 function changePage(page) {
     if (page < 1 || page > totalPages) return;
     currentPage = page;
-    loadArticles();
+    loadArticles(currentPage);
 }
 
 function viewArticle(uuid) {
@@ -177,7 +199,7 @@ function viewArticle(uuid) {
             `;
             modal.style.display = "block";
         })
-        .catch(error => showToast('错误', '加载文章详情失败：' + error.message));
+        .catch(error => showToast('error', '加载文章详情失败：' + error.message));
 }
 
 function closeArticleModal() {
@@ -192,7 +214,7 @@ function startScrape() {
     fetch('/apis/scrape', { method: 'POST' })
         .then(response => response.json())
         .then(data => {
-            showToast('成功', '爬取任务已启动');
+            showToast('success', '爬取任务已启动');
             setTimeout(loadArticles, 3000);
         })
         .catch(error => showToast('错误', '启动爬取失败：' + error.message));
@@ -204,10 +226,10 @@ function deleteArticle(uuid) {
     })
     .then(response => response.json())
     .then(data => {
-        showToast('成功', '文章已删除');
+        showToast('success', '文章已删除');
         loadArticles(); // 重新加载文章列表
     })
-    .catch(error => showToast('错误', '删除文章失败：' + error.message));
+    .catch(error => showToast('error', '删除文章失败：' + error.message));
 }
 
 // 页面加载和模态框事件处理

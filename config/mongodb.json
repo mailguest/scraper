@@ -1,8 +1,5 @@
 {
     "host": "localhost",
     "port": 27017,
-    "database": "scraper",
-    "collections": {
-        "articles": "articles"
-    }
+    "database": "scraper"
 } 

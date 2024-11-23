@@ -34,6 +34,65 @@ function logout() {
     }
 }
 
+// 全局变量，用于存储 toast 队列
+const toastQueue = [];
+let isProcessingToast = false;
+
+/**
+ * 显示提示信息
+ * @param {string} type - 提示类型：'success' 或 'error'
+ * @param {string} message - 提示信息
+ */
+function showToast(type, message) {
+    // 将新的 toast 添加到队列
+    toastQueue.push({ type, message });
+    
+    // 如果没有正在处理的 toast，开始处理队列
+    if (!isProcessingToast) {
+        processToastQueue();
+    }
+}
+
+/**
+ * 处理 toast 队列
+ */
+function processToastQueue() {
+    if (toastQueue.length === 0) {
+        isProcessingToast = false;
+        return;
+    }
+
+    isProcessingToast = true;
+    const { type, message } = toastQueue.shift();
+
+    // 创建 toast 元素
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    
+    // 计算位置
+    const existingToasts = document.querySelectorAll('.toast');
+    const offset = existingToasts.length * 60; // 每个 toast 的间距
+    
+    // 添加到页面
+    document.body.appendChild(toast);
+    
+    // 显示动画
+    setTimeout(() => {
+        toast.style.opacity = '1';
+    }, 100);
+    
+    // 3秒后移除
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+            // 处理队列中的下一个 toast
+            processToastQueue();
+        }, 300);
+    }, 3000);
+}
+
 // 等待 DOM 完全加载后再执行
 document.addEventListener('DOMContentLoaded', function() {
     try {

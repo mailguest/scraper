@@ -1,9 +1,11 @@
+from config.db import init_mongo, mongo as db
 from utils.ArticleMapper import ArticleMapper
 from utils.Article import Article
 
 def test_mongodb():
+    init_mongo()
     # 创建 Mapper 实例
-    article_mapper = ArticleMapper()
+    article_mapper = ArticleMapper(db=db)
 
     # 创建文章实体
     article = Article(
@@ -38,7 +40,7 @@ def test_mongodb():
     success = article_mapper.delete_article(article.UUID)
     assert success, "删除文章失败"
 
-    article_mapper.__del__()
+    db.close()
     print("测试完成")
 
     

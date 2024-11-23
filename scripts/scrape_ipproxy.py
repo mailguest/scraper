@@ -3,10 +3,10 @@ import requests
 import os
 import json
 from lxml import etree
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
 from config.config import Config
 from utils.log_utils import setup_logging
+from typing import Optional
 
 # 免费海外代理 ip 页
 FREE_IP_URL = 'https://www.iphaiwai.com/free'
@@ -39,14 +39,14 @@ class IpProxyMapping():
             proxy_ip_list = json.loads(content, object_hook=lambda d: IpProxy(**d))
         return proxy_ip_list
     
-    def get_proxy_by_ip(self, ip: str, port: str) -> IpProxy:
+    def get_proxy_by_ip(self, ip: str, port: str) -> Optional[IpProxy]:
         proxies = self.load_proxies()
         for proxy in proxies:
             if proxy.ip == ip and proxy.port == port:
                 return proxy
         return None
     
-    def get_a_proxy(self) -> dict:
+    def get_a_proxy(self) -> Optional[dict]:
         proxies = self.load_proxies()
         if not proxies:
             return None
@@ -93,7 +93,7 @@ def test_proxy(proxy_ip_data: IpProxy):
     proxies = get_proxies_dict(proxy_ip_data)
     try:
         # 验证可用性, 国内环境无法访问该网站
-        response = requests.get(url=VERIFY_URL, proxies=proxies, timeout=20)
+        response = requests.get(url=VERIFY_URL, proxies=proxies, timeout=5)
         response.encoding = 'utf-8'
         # <title>WhatsApp Web</title>
         if response.status_code == 200:
@@ -108,7 +108,7 @@ def test_proxy(proxy_ip_data: IpProxy):
 def get_proxies(logger) -> list[IpProxy]:
     return IpProxyMapping(logger).load_proxies()
 
-def get_random_proxies() -> dict:
+def get_random_proxies() -> Optional[dict]:
    return IpProxyMapping(logger).get_a_proxy()
 
 def save(proxy_json):
@@ -136,7 +136,7 @@ class OverseasFree:
         :param proxy_ip_data: 获取到的免费海外代理 ip
         """
         if not test_proxy(proxy_ip_data):
-            self.logger.error(f"代理 {proxy_ip_data.ip} 不可用")
+            self.logger.info(f"代理 {proxy_ip_data.ip} 不可用")
         else:
             self.logger.info(f"代理 {proxy_ip_data.ip} 可用")
             self.effective_ip_list.append(proxy_ip_data)
@@ -147,7 +147,7 @@ class OverseasFree:
         """
         try:
             response = requests.get(url=FREE_IP_URL, headers=self.headers, timeout=5)
-            html = etree.HTML(response.text)
+            html = etree.HTML(response.text, parser=etree.HTMLParser())
 
             ip_list = html.xpath("//td[@class='kdl-table-cell'][1]/text()") # 获取 ip
             port_list = html.xpath("//td[@class='kdl-table-cell'][2]/text()") # 获取端口
@@ -160,6 +160,7 @@ class OverseasFree:
             return proxy_list
         except Exception as e:
             self.logger.error('get ip error: %s' % e)
+            return []
 
     def main(self):
         # 获取所有的免费代理 ip

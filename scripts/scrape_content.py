@@ -1,6 +1,7 @@
 import json
 import os
 from scripts.scrape_factory import ContentScraperFactory
+from flask import current_app
 from utils.ArticleMapper import ArticleMapper
 from utils.Article import Article
 from datetime import datetime
@@ -14,27 +15,31 @@ def scrape_article_content(article: Article, logger):
         # logger.warning(f"Scraper not found for {article['source']}. Skipping...")
         return 
     
-    content = scraper.scrape()
+    content, status = scraper.scrape()
     
     if content:
         article.content = content
-        article.status = "success"
-        article.content_uri = scraper.get_connect_url()
-        article.updated_at = datetime.now()
-
-        logger.info(f"Saved article content for {article.UUID}.json")
     else:
-        logger.warning(f"Failed to scrape content for {article.UUID}. Skipping...")
+        logger.warning(f"爬取Content为空，UUID is： {article.UUID}. ")
+
+    article.status = status
+    article.content_uri = scraper.get_connect_url()
+    article.updated_at = datetime.now()
     # 保存文章内容
-    article_mapper = ArticleMapper()
-    article_mapper.update_article(article)
-    article_mapper.close()
+    mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
+    mapper.update_article(article)
+    logger.info(f"Saved article content for {article.UUID}.json")
 
 def scrape_all_articles(logger):
     """
     主入口：抓取所有待处理的文章
     """
-    articles = ArticleMapper().get_articles_by_status()
+    try:
+        mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
+        articles = mapper.get_articles_by_status(status="pending")
 
-    for article in articles:
-        scrape_article_content(article, logger)
+        for article in articles:
+            scrape_article_content(article, logger)
+    except Exception as e:
+        logger.error(f"主入口：抓取所有待处理的文章: {str(e)}")
+        raise e

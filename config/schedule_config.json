@@ -3,7 +3,7 @@
     {
       "id": "list_scraper",
       "name": "列表爬虫",
-      "cron": "5 * * * *",
+      "cron": "*/5 * * * *",
       "function": "scrape_list",
       "enabled": true,
       "description": "爬取文章列表数据"
@@ -11,7 +11,7 @@
     {
       "id": "content_scraper",
       "name": "内容爬虫",
-      "cron": "30 * * * *",
+      "cron": "*/5 * * * *",
       "function": "scrape_content",
       "enabled": true,
       "description": "爬取文章详细内容"
@@ -19,7 +19,7 @@
     {
       "id": "ip_proxy_scraper",
       "name": "IP代理爬虫",
-      "cron": "*/15 * * * *",
+      "cron": "*/5 * * * *",
       "function": "scrape_ip_proxies",
       "enabled": true,
       "description": "爬取IP代理"

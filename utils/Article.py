@@ -6,13 +6,13 @@ from typing import Optional
 class Article:
     UUID: str
     title: str
-    content: str
+    content: Optional[str]
     content_short: Optional[str]
     date: str
     source: str
     list_uri: Optional[str]
     content_uri: Optional[str]
-    status: str = 'success'
+    status: Optional[str]
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -23,7 +23,7 @@ class Article:
         return {k: v for k, v in asdict(self).items() if v is not None}
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'Article':
+    def from_dict(cls, data: Optional[dict]) -> Optional['Article']:
         """
         从字典创建实体对象
         """

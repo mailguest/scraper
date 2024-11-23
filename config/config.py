@@ -6,6 +6,7 @@ class Config:
     SCHEDULER_STARTUP_DELAY = 60  # 调度器启动延迟时间
     PROCESS_CHECK_INTERVAL = 30   # 进程健康检查间隔
     MAX_RESTART_ATTEMPTS = 3      # 最大重启尝试次数
+    CONFIG_CHECK_INTERVAL = 5     # 配置检查间隔
 
     
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
