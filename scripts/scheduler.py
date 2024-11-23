@@ -2,18 +2,18 @@ import schedule
 import time
 import json
 from utils.log_utils import setup_logging
-from scripts.scraper import scrape  # 列表爬虫
+from scripts.scrape_list import scrape  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles  # 内容爬虫
 from scripts.scrape_ipproxy import scrape_ipproxies  # IP 代理爬虫
 from croniter import croniter
 from datetime import datetime
-
+from config.config import Config
 # 使用日志工具类设置日志
 logger = setup_logging("Scheduler", "scheduler.log")
 
 # 读取调度配置文件
 def load_schedule_config():
-    with open("config/schedule_config.json", 'r') as f:
+    with open(Config.SCHEDULE_CONFIG, 'r') as f:
         return json.load(f)
 
 # 列表爬虫任务
@@ -39,7 +39,7 @@ def scrape_ip_proxies(logger):
     logger.info("Running scheduled scraping scrape_ip_proxies job...")
     try:
         # 从代理网站获取 IP 代理
-        scrape_ipproxies(logger=logger)
+        scrape_ipproxies(logger)
         logger.info("IP proxy scraping completed successfully.")
     except Exception as e:
         logger.error(f"IP proxy scraping failed: {str(e)}")

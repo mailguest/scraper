@@ -14,12 +14,17 @@ function loadArticles() {
             data.items.forEach(article => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${article.title}</td>
+                    <td class="article-title-cell" title="${article.title}">
+                        <div class="article-title-text">${article.title}</div>
+                    </td>
                     <td>${article.date}</td>
                     <td>${article.source}</td>
-                    <td>
+                    <td class="action-column">
                         <button class="action-btn action-btn-info" onclick="event.stopPropagation()">
                             查看
+                        </button>
+                        <button class="action-btn action-btn-danger" onclick="event.stopPropagation()">
+                            删除
                         </button>
                     </td>
                 `;
@@ -27,16 +32,25 @@ function loadArticles() {
                 // 为整行添加点击事件
                 row.addEventListener('click', () => viewArticle(article.UUID));
                 
-                // 为按钮添加点击事件（阻止事件冒泡）
-                const button = row.querySelector('.action-btn-info');
-                button.addEventListener('click', (e) => {
+                // 为查看按钮添加点击事件
+                const viewButton = row.querySelector('.action-btn-info');
+                viewButton.addEventListener('click', (e) => {
                     e.stopPropagation();
                     viewArticle(article.UUID);
                 });
                 
+                // 为删除按钮添加点击事件
+                const deleteButton = row.querySelector('.action-btn-danger');
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm('确定要删除这篇文章吗？')) {
+                        deleteArticle(article.UUID);
+                    }
+                });
+                
                 tbody.appendChild(row);
             });
-            totalPages = Math.ceil(data.total / limit);
+            totalPages = data.total_pages;
             // 更新分页
             updatePagination();
         })
@@ -47,19 +61,90 @@ function updatePagination() {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
 
+    // 添加"上一页"按钮
     if (currentPage > 1) {
         pagination.innerHTML += `
             <button onclick="changePage(${currentPage - 1})" class="btn btn-secondary">上一页</button>
         `;
     }
 
-    for (let i = 1; i <= totalPages; i++) {
-        pagination.innerHTML += `
-            <button onclick="changePage(${i})" 
-                    class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
-        `;
+    // 页码显示逻辑
+    if (totalPages <= 6) {
+        // 总页数不超过6页时，显示所有页码
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `
+                <button onclick="changePage(${i})" 
+                        class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+            `;
+        }
+    } else {
+        // 当总页数大于6页时的显示逻辑
+        let startPage, endPage;
+        
+        if (currentPage <= 3) {
+            // 当前页靠近开始
+            startPage = 1;
+            endPage = 5;
+            
+            // 显示页码
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                `;
+            }
+            
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            pagination.innerHTML += `
+                <button onclick="changePage(${totalPages})" 
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-secondary'}">${totalPages}</button>
+            `;
+            
+        } else if (currentPage >= totalPages - 2) {
+            // 当前页靠近结束
+            startPage = totalPages - 4;
+            endPage = totalPages;
+            
+            pagination.innerHTML += `
+                <button onclick="changePage(1)" 
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-secondary'}">1</button>
+            `;
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                `;
+            }
+            
+        } else {
+            // 当前页在中间
+            startPage = currentPage - 2;
+            endPage = currentPage + 2;
+            
+            pagination.innerHTML += `
+                <button onclick="changePage(1)" 
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-secondary'}">1</button>
+            `;
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                `;
+            }
+            
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            pagination.innerHTML += `
+                <button onclick="changePage(${totalPages})" 
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-secondary'}">${totalPages}</button>
+            `;
+        }
     }
 
+    // 添加"下一页"按钮
     if (currentPage < totalPages) {
         pagination.innerHTML += `
             <button onclick="changePage(${currentPage + 1})" class="btn btn-secondary">下一页</button>
@@ -103,16 +188,6 @@ function closeArticleModal() {
     document.body.style.overflow = 'auto';
 }
 
-function refreshCache() {
-    fetch('/apis/refresh', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            showToast('成功', '缓存已刷新');
-            loadArticles();
-        })
-        .catch(error => showToast('错误', '刷新缓存失败：' + error.message));
-}
-
 function startScrape() {
     fetch('/apis/scrape', { method: 'POST' })
         .then(response => response.json())
@@ -121,6 +196,18 @@ function startScrape() {
             setTimeout(loadArticles, 3000);
         })
         .catch(error => showToast('错误', '启动爬取失败：' + error.message));
+}
+
+function deleteArticle(uuid) {
+    fetch(`/apis/article/${uuid}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        showToast('成功', '文章已删除');
+        loadArticles(); // 重新加载文章列表
+    })
+    .catch(error => showToast('错误', '删除文章失败：' + error.message));
 }
 
 // 页面加载和模态框事件处理

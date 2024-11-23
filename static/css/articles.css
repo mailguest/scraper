@@ -126,6 +126,24 @@ th {
     margin-right: -5px;
 }
 
+.article-title-cell {
+    max-width: 400px; /* 根据实际需要调整最大宽度 */
+    min-width: 200px;
+    width: 40%;
+}
+
+.article-title-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-column {
+    min-width: 160px;
+    width: 160px;
+    white-space: nowrap;
+}
+
 /* 美化滚动条样式 */
 .article-body::-webkit-scrollbar {
     width: 6px;
@@ -178,6 +196,11 @@ th {
     font-size: 12px;
 }
 
+.pagination-ellipsis {
+    margin: 0 8px;
+    color: #666;
+}
+
 /* 表格中的操作按钮样式 */
 .action-btn {
     padding: 6px 12px;
@@ -211,6 +234,16 @@ th {
 .action-btn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+}
+
+.action-btn-danger {
+    background-color: #dc3545;
+    color: white;
+    margin-left: 8px;
+}
+
+.action-btn-danger:hover {
+    background-color: #c82333;
 }
 
 /* 添加表格行的交互样式 */

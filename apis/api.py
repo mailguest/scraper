@@ -1,12 +1,12 @@
 from flask import Flask, jsonify, request, render_template # 导入 Flask 框架
 from utils.log_utils import setup_logging # 导入日志工具
-from utils.cache_utils import get_search, start_worker  # 导入缓存管理
 import json
 from pathlib import Path
 import os
-from scripts.scraper import scrape as scrape_list  # 列表爬虫
+from scripts.scrape_list import scrape as scrape_list  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles as scrape_content  # 内容爬虫
 import scripts.scrape_ipproxy as ipproxy
+from utils.ArticleMapper import ArticleMapper
 
 # 获取当前文件所在目录的上级目录（项目根目录）
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +23,8 @@ logger = setup_logging("API", "api.log")
 
 # 添加新的路由处理定时任务相关的请求
 CONFIG_PATH = Path("config/schedule_config.json")
+
+article_mapper = ArticleMapper()
 
 def load_schedule_config():
     """加载定时任务配置"""
@@ -75,11 +77,6 @@ def refresh_proxies():
 
 @app.route('/apis/proxies/<path:ip>/test', methods=['POST'])
 def test_and_flush_proxy(ip):
-    # 测试代理
-    # logger.info(f"测试代理: {ip}")
-    # logger.info(f"测试代理: {ip.split(':')[0]}")
-    # logger.info(f"测试代理: {ip.split(':')[1]}")
-    # proxy = ipproxy.IpProxy(ip.split(':')[0], ip.split(':')[1], '', '')
     proxy = ipproxy.find(ip.split(':')[0], ip.split(':')[1])
     if proxy is None:
         return jsonify({"error": f"代理 {ip} 不存在"}), 500
@@ -121,16 +118,14 @@ def get_data():
     logger.info("Parameters - page: %d, limit: %d, date: %s", page, limit, date_str)
 
     # 加载缓存中的数据
-    search = get_search(logger)
-    data = search.filter_data_by_date(page, limit, date_str)
-    total = search.get_total_records(date_str)
+    data = article_mapper.get_articles(page, limit, date_str)
 
     # 如果请求的页面超出范围，返回空列表
-    if not data:
+    if not data or not data['items']:
         logger.warning("No data available for the requested page: %d", page)
         return jsonify({"error": "No data available for the requested page"}), 404
 
-    return jsonify({"total": total, "items": data})
+    return jsonify(data)
 
 @app.route('/apis/article/<uuid>', methods=['GET'])
 def get_article(uuid):
@@ -142,7 +137,7 @@ def get_article(uuid):
     logger.info(f"Received request for article with UUID: {uuid}")
 
     # 加载缓存中的数据
-    data = get_search(logger).load_data_by_uuid(uuid)
+    data = article_mapper.get_article_by_uuid(uuid)
 
     if not data:
         logger.warning(f"No article found with UUID: {uuid}")
@@ -150,18 +145,10 @@ def get_article(uuid):
 
     return jsonify(data)
 
-@app.route('/apis/refresh', methods=['POST'])
-def refresh_cache():
-    """
-    刷新缓存
-    :return: JSON 格式的响应
-    """
-    logger.info("Received request to flush cache")
-
-    # 清空缓存
-    get_search(logger).refresh_cache()
-
-    return jsonify({"message": "Cache flushed"})
+@app.route('/apis/article/<uuid>', methods=['DELETE'])
+def delete_article(uuid):
+    article_mapper.delete_article(uuid)
+    return jsonify({"message": "Article deleted"}), 204
 
 @app.route('/apis/scrape', methods=['POST'])
 def do_scrape():
@@ -321,8 +308,4 @@ def toggle_job(job_id):
 
 if __name__ == "__main__":
     logger.info("Starting API server...")
-
-    # 启动子线程来定期更新缓存
-    start_worker(logger, interval=600)
-
     app.run(debug=True, host='0.0.0.0', port=5001)

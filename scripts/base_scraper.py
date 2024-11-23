@@ -13,3 +13,7 @@ class BaseScraper(ABC):
     @abstractmethod
     def scrape(self):
         pass
+
+    @abstractmethod
+    def get_connect_url(self):
+        pass

@@ -7,6 +7,8 @@ from datetime import datetime
 import uuid
 from bs4 import BeautifulSoup
 from scripts.scrape_ipproxy import get_random_proxies
+from utils.Article import Article
+from config.config import Config
 
 class WallStreetCNScraper(BaseScraper):
     """
@@ -16,9 +18,11 @@ class WallStreetCNScraper(BaseScraper):
         super().__init__(url, limit)
         self.logger = setup_logging("WallStreetCNScraper", "wallstreet_scraper.log")  # 设置日志
 
+    def get_connect_url(self):
+        return self.url
 
     def scrape(self):
-        url = self.url.replace("{limit}", str(self.limit))
+        self.url = self.url.replace("{limit}", str(self.limit))
 
         # 获取代理
         proxies = get_random_proxies()
@@ -27,38 +31,53 @@ class WallStreetCNScraper(BaseScraper):
         self.logger.info(f"开始抓取 WallStreetCN，URL: {self.url}, 代理: {str(proxies)}")
 
         if proxies is None:
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(self.url, headers=self.headers)
         else:
-            response = requests.get(url, proxies=proxies, headers=self.headers)
+            response = requests.get(self.url, proxies=proxies, headers=self.headers)
+        
+        scraped_data: list[Article] = []
         
         if response.status_code == 200:
             data = response.json()
             items = data['data']['items']
-            scraped_data = []
             for item in items:
-                # 提取文章日期，并转换为年月日格式
-                timestamp = item['resource']['display_time']
-                date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d')
-
-                article = {
-                    'UUID': uuid.uuid5(uuid.NAMESPACE_DNS, item['resource']['title']).hex,
-                    'title': item['resource']['title'],
-                    'uri': item['resource']['uri'].split("?")[0],  # 去掉 URL 中的查询参数
-                    'content_short': item['resource'].get('content_short', None),
-                    'date': date,
-                    'source': 'WallStreetCN'  # 增加文章来源字段
-                }
-
-                if article.get('content_short') is None:
-                    # 如果缺少 'content_short'，记录警告并跳过此项
-                    self.logger.warning(f"缺少 'content_short'，文章标题: {item['resource'].get('title', '未知标题')}")
-
-                scraped_data.append(article)
-
+                resource: dict = item['resource']
+                if "articles" in  resource.keys():
+                    articles = resource['articles']
+                    for article in articles:
+                        article["display_time"] = item.get("most_recent_content_time", datetime.now().timestamp())
+                        scraped_data.append(self.analyze_content(article))
+                else:
+                    scraped_data.append(self.analyze_content(resource))
             self.logger.info(f"抓取 WallStreetCN 完成，总文章数: {len(scraped_data)}")
-            return scraped_data
-        else:
-            return []
+        
+        return scraped_data
+    
+    # 分析内容
+    def analyze_content(self, item) -> Article:
+        # 提取文章日期，并转换为年月日格式
+        timestamp = item['display_time']
+        date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+
+        article = Article(
+            UUID=uuid.uuid5(uuid.NAMESPACE_DNS, item['title']).hex,
+            title=item['title'],
+            content=None,
+            content_short=item.get('content_short', None),
+            date=date,
+            source='WallStreetCN',  # 增加文章来源字段
+            list_uri=item['uri'].split("?")[0],  # 去掉 URL 中的查询参数
+            content_uri=None,
+            status='pending',
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+
+        if article.content_short is None:
+            # 如果缺少 'content_short'，记录警告并跳过此项
+            self.logger.warning(f"缺少 'content_short'，文章标题: {item.get('title', '未知标题')}")
+        
+        return article
 
 
 class WallStreetCNContentScraper(BaseScraper):
@@ -66,7 +85,7 @@ class WallStreetCNContentScraper(BaseScraper):
         super().__init__(url)
         self.__content_url = None
 
-        with open("config/urls.json") as file:
+        with open(Config.URL_CONFIG) as file:
             self.__content_url_template = json.load(file)["WallStreetCNContent"]["url"]
         
         self.logger = setup_logging("WallStreetCNContentScraper", "wallstreet_content_scraper.log")
@@ -76,12 +95,10 @@ class WallStreetCNContentScraper(BaseScraper):
     从 WallStreetCN 网站抓取文章内容
     """
     def scrape(self):
-        # import pdb
-        # pdb.set_trace()
 
         try:
             # 生成 API 请求链接
-            self.__create_content_url()
+            self.__set_content_url()
             self.logger.info(f"从 {self.__content_url} 获取内容")
             if self.__content_url is None:
                 self.logger.error("生成内容 URL 失败。")
@@ -113,11 +130,11 @@ class WallStreetCNContentScraper(BaseScraper):
             self.logger.error(f"从 {self.__content_url} 获取内容时出错，列表 URL 为 {self.url}: {e}")
             return None
     
-    def __create_content_url(self):
+    def __set_content_url(self):
         # 从 uri 中提取文章 ID 并生成 API 请求链接
         self.url = self.url.split("?")[0]  # 去掉查询参数
         article_id = self.url.split('/')[-1]
         self.__content_url = self.__content_url_template.replace("{article_id}", article_id)
     
-    def get_content_url(self):
+    def get_connect_url(self):
         return self.__content_url

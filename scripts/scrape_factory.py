@@ -1,6 +1,7 @@
 # factory.py
 from scripts.wallstreetcn_scraper import WallStreetCNScraper, WallStreetCNContentScraper
-from scripts.sina_finance_scraper import SinaFinanceScraper, SinaContentScraper
+from scripts.sinafinance_scraper import SinaFinanceScraper, SinaContentScraper
+from scripts.base_scraper import BaseScraper
 from utils.log_utils import setup_logging  # 引入日志工具类
 
 # 使用日志工具类设置日志
@@ -13,7 +14,7 @@ class ScraperFactory:
     }
 
     @classmethod
-    def create_scraper(cls, name, url, limit):
+    def create_scraper(cls, name, url, limit) -> BaseScraper:
         if name in cls.scrapers:
             return cls.scrapers[name](url, limit)
         else:
@@ -22,7 +23,7 @@ class ScraperFactory:
 class ContentScraperFactory:
     
     @classmethod
-    def create_scraper(cls, source, url):
+    def create_scraper(cls, source, url) -> BaseScraper:
         if source == "WallStreetCN":
             return WallStreetCNContentScraper(url)
         elif source == "SinaFinance":
