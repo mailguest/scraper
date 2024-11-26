@@ -12,8 +12,9 @@ class SinaFinanceScraper(BaseScraper):
     """
     从新浪财经网站抓取文章列表
     """
-    def __init__(self, url, limit):
-        super().__init__(url, limit)
+    def __init__(self, url, limit=30, **kwargs):
+        super().__init__(url, **kwargs)
+        self.limit = limit
         self.logger = setup_logging("SinaFinanceScraper", "sina_scraper.log")
 
     def get_connect_url(self):
@@ -71,8 +72,8 @@ class SinaFinanceScraper(BaseScraper):
 
 
 class SinaContentScraper(BaseScraper):
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, **kwargs):
+        super().__init__(url, **kwargs)
         self.logger = setup_logging("SinaContentScraper", "sina_content_scraper.log")
 
     def scrape(self):

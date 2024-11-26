@@ -15,8 +15,9 @@ class WallStreetCNScraper(BaseScraper):
     """
     从 WallStreetCN 网站抓取文章列表
     """
-    def __init__(self, url, limit):
-        super().__init__(url, limit)
+    def __init__(self, url, limit=30, **kwargs):
+        super().__init__(url, **kwargs)
+        self.limit = limit
         self.logger = setup_logging("WallStreetCNScraper", "wallstreet_scraper.log")  # 设置日志
 
     def get_connect_url(self):
@@ -87,8 +88,8 @@ class WallStreetCNScraper(BaseScraper):
 
 
 class WallStreetCNContentScraper(BaseScraper):
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, **kwargs):
+        super().__init__(url, **kwargs)
         self.__content_url = None
 
         with open(Config.URL_CONFIG) as file:

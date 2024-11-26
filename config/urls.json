@@ -11,6 +11,12 @@
       "url": "https://feed.mix.sina.com.cn/api/roll/get?pageid=155&lid=1686&num={limit}&page=1",
       "limit": 30,
       "method": "GET"
+    },
+    {
+      "name": "Cls",
+      "url": "https://www.cls.cn/v2/article/hot/list?app=CailianpressWeb&os=web&sv=8.4.6&sign={sign}",
+      "params": "app=CailianpressWeb&os=web&sv=8.4.6",
+      "method": "GET"
     }
   ],
   "WallStreetCNContent": {

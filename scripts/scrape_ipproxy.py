@@ -136,9 +136,10 @@ class OverseasFree:
         :param proxy_ip_data: 获取到的免费海外代理 ip
         """
         if not test_proxy(proxy_ip_data):
-            self.logger.info(f"代理 {proxy_ip_data.ip} 不可用")
+            # self.logger.info(f"代理 {proxy_ip_data.ip} 不可用")
+            pass
         else:
-            self.logger.info(f"代理 {proxy_ip_data.ip} 可用")
+            # self.logger.info(f"代理 {proxy_ip_data.ip} 可用")
             self.effective_ip_list.append(proxy_ip_data)
 
     def get_data(self) -> list[IpProxy]:
@@ -173,7 +174,7 @@ class OverseasFree:
         # 验证 ip 可用性
         for proxy_data in proxy_data_list:
             self.verify_ip(proxy_data)
-
+        self.logger.info(f"本次更新代理：{self.effective_ip_list}")
         self.ip_proxy_mapping.save_proxies(self.effective_ip_list)
 
 

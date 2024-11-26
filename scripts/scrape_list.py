@@ -1,4 +1,5 @@
 import json
+from logging import Logger
 from scripts.scrape_factory import ScraperFactory
 from datetime import datetime
 import os
@@ -15,7 +16,7 @@ def load_urls():
         return json.load(file)["websites"]
 
 # 保存数据到一个文件中，按日期切分文件
-def save_data(new_data, logger):
+def save_data(new_data, logger:Logger):
     try:
         article_mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
 
@@ -50,7 +51,7 @@ def save_data(new_data, logger):
         raise
 
 # 主抓取逻辑
-def scrape(logger):
+def scrape(logger:Logger):
     try:
         proxy = get_random_proxies()
         # 确保 proxy 是正确的格式
@@ -64,7 +65,7 @@ def scrape(logger):
 
         for site in websites:
             try:
-                scraper = ScraperFactory.create_scraper(site["name"], site["url"], site["limit"])
+                scraper = ScraperFactory.create_scraper(site["name"], site["url"], limit=site.get('limit', 30))
                 scraped_data = scraper.scrape()
                 if scraped_data:
                     # 确保 scraped_data 是列表
@@ -73,7 +74,7 @@ def scrape(logger):
                     else:
                         all_scraped_data.append(scraped_data)
             except ValueError as e:
-                logger.error(f"Error scraping {site['name']}: {e}")
+                logger.warning(f"Error scraping {site['name']}: {e}")
         
         if all_scraped_data and len(all_scraped_data) > 0:
             save_data(all_scraped_data, logger)  # 保存所有网站的抓取数据到一个文件

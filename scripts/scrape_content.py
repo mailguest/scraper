@@ -1,4 +1,5 @@
 import json
+from logging import Logger
 import os
 from scripts.scrape_factory import ContentScraperFactory
 from flask import current_app
@@ -6,13 +7,16 @@ from utils.ArticleMapper import ArticleMapper
 from utils.Article import Article
 from datetime import datetime
 
-def scrape_article_content(article: Article, logger):
+def scrape_article_content(article: Article, logger:Logger):
     """
     抓取单篇文章内容
     """
-    scraper = ContentScraperFactory.create_scraper(article.source, article.list_uri)
-    if scraper is None:
-        # logger.warning(f"Scraper not found for {article['source']}. Skipping...")
+    try:
+        scraper = ContentScraperFactory.create_scraper(article.source, article.list_uri)
+        if scraper is None:
+            return
+    except ValueError as e:
+        # logger.warning(e)
         return 
     
     try:

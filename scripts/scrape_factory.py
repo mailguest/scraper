@@ -2,34 +2,33 @@
 from scripts.wallstreetcn_scraper import WallStreetCNScraper, WallStreetCNContentScraper
 from scripts.sinafinance_scraper import SinaFinanceScraper, SinaContentScraper
 from scripts.base_scraper import BaseScraper
+from tests.test_scraper import scraper
 from utils.log_utils import setup_logging  # 引入日志工具类
 from typing import Optional
 
 # 使用日志工具类设置日志
 logger = setup_logging("ScraperFactory", "ScraperFactory.log")
 
-class ScraperFactory:
-    scrapers = {
+class BaseFactory:
+    opts = {}
+
+    @classmethod
+    def create_scraper(cls, source, url, **kwargs) -> BaseScraper:
+        scraper = cls.opts.get(source, None)
+        if scraper:
+            return scraper(url, **kwargs)  # 传递 **kwargs
+        raise ValueError(f"Scraper for {source} not found.")
+
+class ScraperFactory(BaseFactory):
+    opts = {
         "WallStreetCN": WallStreetCNScraper,
-        "SinaFinance": SinaFinanceScraper
+        "SinaFinance": SinaFinanceScraper,
+        "Cls": None #ClsScraper
     }
 
-    @classmethod
-    def create_scraper(cls, name, url, limit) -> BaseScraper:
-        if name in cls.scrapers:
-            return cls.scrapers[name](url, limit)
-        else:
-            raise ValueError(f"Scraper for {name} not found.")
-
-class ContentScraperFactory:
-    
-    @classmethod
-    def create_scraper(cls, source, url) -> Optional[BaseScraper]:
-        if source == "WallStreetCN":
-            return WallStreetCNContentScraper(url)
-        elif source == "SinaFinance":
-            # return SinaContentScraper(url)
-            return None
-        else:
-            logger.error(f"No content scraper available for source: {source}")
-            return None
+class ContentScraperFactory(BaseFactory):
+    opts = {
+        "WallStreetCN": WallStreetCNContentScraper,
+        "SinaFinance": None, #SinaContentScraper,
+        "Cls": None #ClsContentScraper
+    }
