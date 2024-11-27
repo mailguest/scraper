@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}字典表管理{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dictionary.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>字典表管理</h1>
+    <div class="dictionary-list">
+        <div class="toolbar">
+
+            <div class="search-bar">
+                <input type="text" id="searchParent" placeholder="搜索父枚举">
+                <input type="text" id="searchKey" placeholder="搜索枚举">
+                <button class="btn btn-primary" onclick="searchDictionaries()">搜索</button>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="refreshDictionaries()">刷新字典</button>
+                <button class="btn btn-success" onclick="showAddDictionaryModal()">添加字典</button>
+                <span class="dictionary-count">当前字典数量：<span id="dictionaryCount">0</span></span>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>父枚举</th>
+                    <th>枚举</th>
+                    <th>枚举值</th>
+                    <th>说明</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="dictionaryTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 添加/编辑字典模态框 -->
+<div id="dictionaryModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDictionaryModal()">&times;</span>
+        <h2 id="modalTitle">添加字典</h2>
+        <form id="dictionaryForm">
+            <input type="hidden" id="dictionaryId">
+            <div class="form-group">
+                <label for="dictionaryParent">父枚举</label>
+                <input type="text" id="dictionaryParent">
+            </div>
+            <div class="form-group">
+                <label for="dictionaryKey">枚举</label>
+                <input type="text" id="dictionaryKey" required>
+            </div>
+            <div class="form-group">
+                <label for="dictionaryValue">枚举值</label>
+                <input type="text" id="dictionaryValue" required>
+            </div>
+            <div class="form-group">
+                <label for="dictionaryDescription">说明</label>
+                <input type="text" id="dictionaryDescription">
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dictionary.js') }}"></script>
+{% endblock %}

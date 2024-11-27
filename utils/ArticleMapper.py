@@ -11,9 +11,6 @@ class ArticleMapper:
         # 获取集合
         self.collection = current_app.config["db"].get_collection('articles') if db is None else db.get_collection('articles')
 
-        if not logger:
-            self.logger = setup_logging("ArticleMapper", "ArticleMapper.log")
-
         # 判断索引是否存在
         if not self.collection.index_information().get('UUID_1'):
             # 创建索引

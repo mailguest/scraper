@@ -25,3 +25,7 @@ def proxy_page():
 @bp.route('/articles')
 def article_page():
     return render_template('articles.html', active_page='articles')
+
+@bp.route('/dictionary')
+def dictionary_page():
+    return render_template('dictionary.html', active_page='dictionary')

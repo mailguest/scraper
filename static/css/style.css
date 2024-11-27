@@ -34,13 +34,19 @@ body {
     gap: 20px;
 }
 
-.logout-btn {
-    padding: 6px 12px;
-    background-color: #e74c3c;
-    color: white;
+.btn {
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-right: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.logout-btn {
+    background-color: #e74c3c;
+    color: white;
 }
 
 /* 主容器样式 */

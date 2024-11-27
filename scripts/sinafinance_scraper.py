@@ -1,4 +1,5 @@
 # sina_finance_scraper.py
+from email import charset
 from httpcore import ProxyError
 import requests
 from scripts.base_scraper import BaseScraper
@@ -94,6 +95,7 @@ class SinaContentScraper(BaseScraper):
                     response = requests.get(self.__content_url, headers=self.headers)
             
             if response.status_code == 200:
+                response.encoding = 'utf-8'
                 content_html = response.text
                 if content_html is None:
                     self.logger.error(f"获取内容失败")
@@ -102,6 +104,15 @@ class SinaContentScraper(BaseScraper):
                 from lxml import html
                 html_tree = html.fromstring(content_html)
                 content_elements = html_tree.xpath('//*[@id="artibody"]')
+                
+                # 移除 style 元素及其后的所有兄弟元素
+                for element in content_elements:
+                    style_element = element.xpath('.//style')
+                    if style_element:
+                        parent = style_element[0].getparent()
+                        for sibling in parent.getchildren()[parent.index(style_element[0]):]:
+                            parent.remove(sibling)
+
                 content_text = ""
                 if content_elements:
                     content = content_elements[0].text_content()
