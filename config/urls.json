@@ -24,7 +24,11 @@
       "method": "GET"
   },
   "SinaFinanceContent": {
-      "url": "https://feed.mix.sina.com.cn/api/roll/get?pageid=155&lid=1686&num={limit}&page=1",
+      "url": "",
       "method": "GET"
-  }
+  },
+  "ClsContent": {
+    "url": "https://www.cls.cn/detail/{id}",
+    "method": "GET"
+}
 }

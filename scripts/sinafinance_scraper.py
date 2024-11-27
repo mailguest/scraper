@@ -74,14 +74,49 @@ class SinaFinanceScraper(BaseScraper):
 class SinaContentScraper(BaseScraper):
     def __init__(self, url, **kwargs):
         super().__init__(url, **kwargs)
+        self.__content_url = self.url
         self.logger = setup_logging("SinaContentScraper", "sina_content_scraper.log")
 
     def scrape(self):
         try:
-            return None, "pending"
+            # 获取代理
+            proxies = get_random_proxies()
+            self.logger.info(f"开始抓取 新浪财经 文章内容，URL: {self.url}, 代理: {str(proxies)}")
+
+            if proxies is None:
+                response = requests.get(self.__content_url, headers=self.headers)
+            else:
+                try:
+                    response = requests.get(self.__content_url, proxies=proxies, headers=self.headers)
+                except Exception as e:
+                    self.logger.error(f"代理获取失败，使用普通请求: {e}")
+                finally:
+                    response = requests.get(self.__content_url, headers=self.headers)
+            
+            if response.status_code == 200:
+                content_html = response.text
+                if content_html is None:
+                    self.logger.error(f"获取内容失败")
+                    return None, "failed"
+                
+                from lxml import html
+                html_tree = html.fromstring(content_html)
+                content_elements = html_tree.xpath('//*[@id="artibody"]')
+                content_text = ""
+                if content_elements:
+                    content = content_elements[0].text_content()
+                    content_text = content.strip() if content else ""
+                else:
+                    self.logger.error("未找到指定的内容元素")
+                    return None, "failed"
+                return content_text, "success"
+            else:
+                self.logger.error(f"获取内容失败: {response.status_code}")
+                return None, "failed"
+            # return None, "pending"
         except Exception as e:
             self.logger.error(f"从 {self.url} 获取内容时出错: {e}")
-            return None, "failed"
+            return None, "pending"
         
     def get_connect_url(self):
         return self.url

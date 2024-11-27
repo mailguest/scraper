@@ -65,7 +65,11 @@ def scrape(logger:Logger):
 
         for site in websites:
             try:
-                scraper = ScraperFactory.create_scraper(site["name"], site["url"], limit=site.get('limit', 30))
+                scraper = ScraperFactory.create_scraper(
+                    site["name"], site["url"], 
+                    limit=site.get('limit', 30),
+                    params=site.get('params', None)
+                )
                 scraped_data = scraper.scrape()
                 if scraped_data:
                     # 确保 scraped_data 是列表

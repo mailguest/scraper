@@ -1,6 +1,7 @@
 # factory.py
 from scripts.wallstreetcn_scraper import WallStreetCNScraper, WallStreetCNContentScraper
 from scripts.sinafinance_scraper import SinaFinanceScraper, SinaContentScraper
+from scripts.cls_scraper import ClsScraper, ClsContentScraper
 from scripts.base_scraper import BaseScraper
 from tests.test_scraper import scraper
 from utils.log_utils import setup_logging  # 引入日志工具类
@@ -23,12 +24,12 @@ class ScraperFactory(BaseFactory):
     opts = {
         "WallStreetCN": WallStreetCNScraper,
         "SinaFinance": SinaFinanceScraper,
-        "Cls": None #ClsScraper
+        "Cls": ClsScraper
     }
 
 class ContentScraperFactory(BaseFactory):
     opts = {
         "WallStreetCN": WallStreetCNContentScraper,
-        "SinaFinance": None, #SinaContentScraper,
-        "Cls": None #ClsContentScraper
+        "SinaFinance": SinaContentScraper,
+        "Cls": ClsContentScraper
     }
