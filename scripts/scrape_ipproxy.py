@@ -54,27 +54,27 @@ class IpProxyMapping():
         proxy = random.choice(proxies)
         return get_proxies_dict(proxy)
     
-    def save_proxies(self, proxies: list[IpProxy]):
+    def save_proxies(self, proxies: list[IpProxy]) -> int:
         try:
             with open(self.file_path, 'w', encoding='utf-8') as f:
                 json.dump([proxy.__dict__ for proxy in proxies], f, ensure_ascii=False, indent=2)
-            return True
+            return len(proxies)
         except Exception as e:
             self.logger.error(f"save proxies error: {e}")
-            return False
+            return 0
 
-    def add_proxy(self, proxy: IpProxy):
+    def add_proxy(self, proxy: IpProxy) -> int:
         proxies = self.load_proxies()
         proxies.append(proxy)
         return self.save_proxies(proxies)
 
-    def delete_proxy(self, ip: str):
+    def delete_proxy(self, ip: str) -> int:
         proxies = self.load_proxies()
         proxies = [proxy for proxy in proxies if proxy.ip != ip]
         return self.save_proxies(proxies)
 
 
-    def update_proxy(self, updated_proxy: IpProxy):
+    def update_proxy(self, updated_proxy: IpProxy) -> int:
         proxies = self.load_proxies()
         for i, proxy in enumerate(proxies):
             if proxy.ip == updated_proxy.ip:
@@ -89,7 +89,7 @@ def get_proxies_dict(proxy: IpProxy) -> dict:
     }
     return proxies
 
-def test_proxy(proxy_ip_data: IpProxy):
+def test_proxy(proxy_ip_data: IpProxy) -> bool:
     proxies = get_proxies_dict(proxy_ip_data)
     try:
         # 验证可用性, 国内环境无法访问该网站
@@ -163,26 +163,28 @@ class OverseasFree:
             self.logger.error('get ip error: %s' % e)
             return []
 
-    def main(self):
+    def main(self) -> int:
+        success_data_count = 0
         # 获取所有的免费代理 ip
         proxy_data_list = self.get_data()
 
         if not proxy_data_list:
             self.logger.error('get ip error: no data')
-            return
+            return success_data_count
 
         # 验证 ip 可用性
         for proxy_data in proxy_data_list:
             self.verify_ip(proxy_data)
         self.logger.info(f"本次更新代理：{self.effective_ip_list}")
-        self.ip_proxy_mapping.save_proxies(self.effective_ip_list)
+        success_data_count = self.ip_proxy_mapping.save_proxies(self.effective_ip_list)
+        return success_data_count
 
 
-def scrape_ipproxies(logger):
+def scrape_ipproxies(logger) -> int:
     """
     爬取 IP 代理
     """
-    OverseasFree(logger=logger).main()
+    return OverseasFree(logger=logger).main()
 
 # if __name__ == "__main__":
 #     import os

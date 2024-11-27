@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+
+from pytz import ZERO
 from .Article import Article
 from utils.log_utils import setup_logging
 from config.db import DBConfig
@@ -19,7 +21,7 @@ class ArticleMapper:
             self.collection.create_index('source')
             self.collection.create_index('list_uri')
 
-    def insert_article(self, article: Article) -> bool:
+    def insert_article(self, article: Article) -> int:
         """
         插入单篇文章
         """
@@ -27,15 +29,15 @@ class ArticleMapper:
             article_dict = article.to_dict()
             article_dict['created_at'] = datetime.now()
             
-            self.collection.update_one(
+            result = self.collection.update_one(
                 {'UUID': article_dict['UUID']},
                 {'$set': article_dict},
                 upsert=True
             )
-            return True
+            return result.modified_count
         except Exception as e:
             self.logger.error(f"Error inserting article: {str(e)}")
-            return False
+            return 0
         
     def insert_articles(self, articles: List[Article]) -> bool:
         """
@@ -192,7 +194,7 @@ class ArticleMapper:
             self.logger.error(f"Error listing articles: {str(e)}")
             return {'total': 0, 'items': [], 'page': page, 'per_page': per_page, 'total_pages': 0}
 
-    def update_article(self, article: Article) -> bool:
+    def update_article(self, article: Article) -> int:
         """
         更新文章
         """
@@ -204,10 +206,10 @@ class ArticleMapper:
                 {'UUID': article.UUID},
                 {'$set': article_dict}
             )
-            return result.modified_count > 0
+            return result.modified_count
         except Exception as e:
             self.logger.error(f"Error updating article: {str(e)}")
-            return False
+            return 0
 
     def delete_article(self, uuid: str) -> bool:
         """

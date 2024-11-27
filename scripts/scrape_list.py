@@ -16,7 +16,8 @@ def load_urls():
         return json.load(file)["websites"]
 
 # 保存数据到一个文件中，按日期切分文件
-def save_data(new_data, logger:Logger):
+def save_data(new_data, logger:Logger) -> int:
+    save_date_count = 0
     try:
         article_mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
 
@@ -41,17 +42,20 @@ def save_data(new_data, logger:Logger):
             # 逐个插入并记录错误
             for article in unique_data:
                 try:
-                    article_mapper.insert_article(article)
+                    save_date_count = article_mapper.insert_article(article)
                 except Exception as e:
                     logger.error(f"插入文章失败: UUID={article.UUID}, title={article.title}，错误信息: {str(e)}")
         else:
             logger.info("No new unique data to add.")
+
+        return save_date_count
     except Exception as e:
         logger.error(f"保存数据时发生错误: {str(e)}")
         raise
 
 # 主抓取逻辑
-def scrape(logger:Logger):
+def scrape(logger:Logger) -> int:
+    data_count = 0
     try:
         proxy = get_random_proxies()
         # 确保 proxy 是正确的格式
@@ -81,8 +85,8 @@ def scrape(logger:Logger):
                 logger.warning(f"Error scraping {site['name']}: {e}")
         
         if all_scraped_data and len(all_scraped_data) > 0:
-            save_data(all_scraped_data, logger)  # 保存所有网站的抓取数据到一个文件
-
+            data_count = save_data(all_scraped_data, logger)  # 保存所有网站的抓取数据到一个文件
+        return data_count
     except Exception as e:
         if logger:
             logger.error(f"Error in scrape function: {str(e)}")
