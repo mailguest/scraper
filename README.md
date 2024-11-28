@@ -2,23 +2,13 @@
 
 ## 项目简介
 
-这是一个基于 Flask 和工厂模式的爬虫项目，支持定时抓取外部网站的数据，并将抓取到的数据保存到本地。项目中包括不同网站的爬虫实现，如**华尔街见闻**和**新浪财经**。日志功能已添加到每个爬虫实现中，爬虫进度与错误都会记录到日志文件中。
-
-### 功能特色
-
-- 使用工厂模式管理多个爬虫类（如 `WallStreetCNScraper` 和 `SinaFinanceScraper`）。
-- 支持通过环境变量配置日志文件的存储路径和日志级别。
-- 每个爬虫类支持抓取标题、文章内容简介、来源、日期、URI等信息。
-- 日志记录所有抓取过程，并自动按日期切割。
-- 爬虫数据支持按日期过滤。
+这是一个简单的内容爬虫项目，支持定时抓取外部网站的数据，并将抓取到的数据保存到本地。项目中包括不同网站的爬虫实现，如**华尔街见闻**、**新浪财经**、**财联社** 等，未来可能会再持续增加。
 
 ## 项目结构
 
 ```bash
-├── /api/                           # Flask API 逻辑
+├── /apis/                           # Flask API 逻辑
 ├── /config/                        # 配置文件
-├── /data/                          # 爬取的数据存放目录
-├── /logs/                          # 日志文件存放目录
 ├── /scripts/                       # 脚本及业务类
 ├── /static/                        # 静态文件
 ├── /templates/                     # 模板文件
@@ -133,7 +123,8 @@ curl "http://localhost:5001/data?page=1&limit=10&date=2024-10-22"
 
 ## 数据存储
 
-- 爬取的数据保存在 `data/` 目录下，文件名以当天日期命名，例如 `scraped_data_2024-10-22.json`。
+- 爬取的数据目前以mongodb存储
+- ip代理以文件方式存储在data目录中
 
 ## 环境变量
 
@@ -142,19 +133,6 @@ curl "http://localhost:5001/data?page=1&limit=10&date=2024-10-22"
 
 可以通过 Docker 环境变量或 `.env` 文件进行配置。
 
-## 爬虫类更新
-
-### `WallStreetCNScraper`
-
-- 日志记录在 `wallstreet_scraper.log` 文件中。
-- 增加 `source` 和 `date` 字段。`source` 字段标明来源为 `"WallStreetCN"`，`date` 字段标注文章发布日期。
-
-### `SinaFinanceScraper`
-
-- 日志记录在 `sina_scraper.log` 文件中。
-- 增加 `source` 和 `date` 字段。`source` 字段标明来源为 `"SinaFinance"`，`date` 字段标注文章发布日期。
-
----
 
 ## 常见问题
 
