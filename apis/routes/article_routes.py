@@ -70,11 +70,11 @@ def do_scrape():
     手动抓取一次数据
     """
     logger = current_app.config['logger']
-    article_mapper = current_app.config['article_mapper']
+    db = current_app.config['db']
     try:
         logger.info("Running manual scraping job...")
-        scrape_list(logger)
-        scrape_all_articles(logger)
+        scrape_list(logger, db)
+        scrape_all_articles(logger, db)
         logger.info("Manual scraping completed successfully.")
     except Exception as e:
         logger.error(f"Manual scraping failed: {str(e)}")

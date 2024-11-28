@@ -1,13 +1,11 @@
-import json
 from logging import Logger
-import os
+from config.db import DBConfig
 from scripts.scrape_factory import ContentScraperFactory
-from flask import current_app
 from utils.ArticleMapper import ArticleMapper
 from utils.Article import Article
 from datetime import datetime
 
-def scrape_article_content(article: Article, logger:Logger) -> int:
+def scrape_article_content(article: Article, logger:Logger, db:DBConfig) -> int:
     """
     抓取单篇文章内容
     """
@@ -36,7 +34,7 @@ def scrape_article_content(article: Article, logger:Logger) -> int:
         article.content_uri = scraper.get_connect_url()
         article.updated_at = datetime.now()
         # 保存文章内容
-        mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
+        mapper = ArticleMapper(db=db, logger=logger)
         success_data_count = mapper.update_article(article)
         logger.info(f"Saved article content for {article.UUID}.json")
     except Exception as e:
@@ -44,17 +42,17 @@ def scrape_article_content(article: Article, logger:Logger) -> int:
     finally:
         return success_data_count
 
-def scrape_all_articles(logger) -> int:
+def scrape_all_articles(logger, db: DBConfig) -> int:
     """
     主入口：抓取所有待处理的文章
     """
     success_data_count = 0
     try:
-        mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
+        mapper = ArticleMapper(db=db, logger=logger)
         articles = mapper.get_articles_by_status(status="pending")
 
         for article in articles:
-            i = scrape_article_content(article, logger)
+            i = scrape_article_content(article, logger, db)
             success_data_count += i
         return success_data_count
     except Exception as e:

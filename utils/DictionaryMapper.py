@@ -9,7 +9,7 @@ class DictionaryMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("DictionaryMapper", "DictionaryMapper.log") 
         # 获取集合
-        self.collection = current_app.config["db"].get_collection('dictionary') if db is None else db.get_collection('dictionary')
+        self.collection = current_app.config["db"].fetch_table('dictionary') if db is None else db.fetch_table('dictionary')
 
     def find(self) -> List[Dict]:
         try:

@@ -1,7 +1,9 @@
 import os
-from typing import Dict, Any
+from config.db import DBConfig
 
 class Config:
+    DB = DBConfig()
+
     # 进程配置
     SCHEDULER_STARTUP_DELAY = 60  # 调度器启动延迟时间
     PROCESS_CHECK_INTERVAL = 30   # 进程健康检查间隔

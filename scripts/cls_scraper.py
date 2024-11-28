@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 import uuid
-from bs4 import BeautifulSoup
 import requests
 from config.config import Config
 from scripts.base_scraper import BaseScraper

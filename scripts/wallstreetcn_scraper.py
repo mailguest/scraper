@@ -1,6 +1,4 @@
-# wallstreetcn_scraper.py
 import json
-from httpcore import ProxyError
 import requests
 from scripts.base_scraper import BaseScraper
 from utils.log_utils import setup_logging  # 引入日志工具类

@@ -23,8 +23,19 @@ class DBConfig:
             self.client = MongoClient(host=host, port=config['port'], maxpoolsize=10)
             self.db = self.client[config['database']]
 
-    def get_collection(self, table_name: str):
+    def get_connection(self):
+        return self
+
+    def fetch_table(self, table_name: str):
         return self.db[table_name]
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # if hasattr(self, 'client'):
+        #     self.client.close()
+        pass
     
     def __del__(self):
         if hasattr(self, 'client'):

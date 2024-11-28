@@ -1,13 +1,10 @@
 import json
 from logging import Logger
+from config.db import DBConfig
 from scripts.scrape_factory import ScraperFactory
-from datetime import datetime
-import os
 from scripts.scrape_ipproxy import get_random_proxies
 from config.config import Config
-from flask import current_app
 from utils.ArticleMapper import ArticleMapper
-from utils.log_utils import setup_logging  # 引入日志工具类
 
 
 # 加载 URLs 配置文件
@@ -16,10 +13,10 @@ def load_urls():
         return json.load(file)["websites"]
 
 # 保存数据到一个文件中，按日期切分文件
-def save_data(new_data, logger:Logger) -> int:
+def save_data(new_data, logger:Logger, db:DBConfig) -> int:
     save_date_count = 0
     try:
-        article_mapper = ArticleMapper(db=current_app.config["db"], logger=logger)
+        article_mapper = ArticleMapper(db=db, logger=logger)
 
         # 根据 list_uri 过滤掉重复的项，仅保留新的数据
         unique_data = [
@@ -54,7 +51,7 @@ def save_data(new_data, logger:Logger) -> int:
         raise
 
 # 主抓取逻辑
-def scrape(logger:Logger) -> int:
+def scrape(logger:Logger, db: DBConfig) -> int:
     data_count = 0
     try:
         proxy = get_random_proxies()
@@ -85,13 +82,13 @@ def scrape(logger:Logger) -> int:
                 logger.warning(f"Error scraping {site['name']}: {e}")
         
         if all_scraped_data and len(all_scraped_data) > 0:
-            data_count = save_data(all_scraped_data, logger)  # 保存所有网站的抓取数据到一个文件
+            data_count = save_data(all_scraped_data, logger, db)  # 保存所有网站的抓取数据到一个文件
         return data_count
     except Exception as e:
         if logger:
             logger.error(f"Error in scrape function: {str(e)}")
         raise e
 
-if __name__ == "__main__":
-    logger = setup_logging("SinaFinanceScraper", "sina_scraper.log")
-    scrape(logger=logger)
+# if __name__ == "__main__":
+#     logger = setup_logging("SinaFinanceScraper", "sina_scraper.log")
+#     scrape(logger=logger)

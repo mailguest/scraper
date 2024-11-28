@@ -180,7 +180,7 @@ class OverseasFree:
         return success_data_count
 
 
-def scrape_ipproxies(logger) -> int:
+def scrape_ipproxies(logger, **kwargs) -> int:
     """
     爬取 IP 代理
     """
