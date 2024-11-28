@@ -130,9 +130,7 @@ curl "http://localhost:5001/data?page=1&limit=10&date=2024-10-22"
 
 - `DATA_DIR`: 爬取数据的存储目录（默认为 `./data`）。
 - `LOGS_DIR`: 日志文件的存储目录（默认为 `./logs`）。
-
-可以通过 Docker 环境变量或 `.env` 文件进行配置。
-
+`
 
 ## 常见问题
 
