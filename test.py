@@ -1,7 +1,4 @@
-from tests.test_mongodb import test_mongodb
-
-def main():
-    test_mongodb()
+from tests.test import main
 
 if __name__ == "__main__":
     main()

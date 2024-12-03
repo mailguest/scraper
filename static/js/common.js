@@ -1,30 +1,4 @@
-// 记录登录时间
-const loginTimestamp = new Date().getTime();
 
-// 更新在线时长
-function updateOnlineTime() {
-    const onlineTimeElement = document.getElementById('onlineTime');
-    
-    // 检查元素是否存在
-    if (!onlineTimeElement) {
-        console.error('找不到显示在线时长的元素');
-        return;
-    }
-    
-    const now = new Date().getTime();
-    const diffInSeconds = Math.floor((now - loginTimestamp) / 1000);
-    
-    // 计算时、分、秒
-    const hours = Math.floor(diffInSeconds / 3600);
-    const minutes = Math.floor((diffInSeconds % 3600) / 60);
-    const seconds = diffInSeconds % 60;
-    
-    // 格式化时间，保证两位数显示
-    const formatNumber = (num) => num.toString().padStart(2, '0');
-    const timeString = `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(seconds)}`;
-    
-    onlineTimeElement.textContent = timeString;
-}
 
 // 登出函数
 function logout() {
@@ -95,19 +69,67 @@ function processToastQueue() {
 
 // 等待 DOM 完全加载后再执行
 document.addEventListener('DOMContentLoaded', function() {
-    try {
-        // 检查元素是否存在
+    setInterval(updateOnlineTime, 1000);
+    toggleSidebar();
+}); 
+
+// 更新在线时长
+function updateOnlineTime() {
+    try{
         const onlineTimeElement = document.getElementById('onlineTime');
+        
+        // 检查元素是否存在
         if (!onlineTimeElement) {
             console.error('找不到显示在线时长的元素');
             return;
         }
         
-        // 立即更新一次
-        updateOnlineTime();
-        // 每秒更新一次时间
-        setInterval(updateOnlineTime, 1000);
+        // 获取或设置登录时间
+        let loginTimestamp = localStorage.getItem('loginTimestamp');
+        if (!loginTimestamp) {
+            loginTimestamp = new Date().getTime();
+            localStorage.setItem('loginTimestamp', loginTimestamp);
+        } else {
+            loginTimestamp = parseInt(loginTimestamp, 10);
+        }
+
+        const now = new Date().getTime();
+        const diffInSeconds = Math.floor((now - loginTimestamp) / 1000);
+        
+        // 计算时、分、秒
+        const hours = Math.floor(diffInSeconds / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+        const seconds = diffInSeconds % 60;
+        
+        // 格式化时间，保证两位数显示
+        const formatNumber = (num) => num.toString().padStart(2, '0');
+        const timeString = `${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(seconds)}`;
+        
+        onlineTimeElement.textContent = timeString;
     } catch (error) {
-        console.error('初始化在线时长显示时出错:', error);
+        console.error('更新在线时长时出错:', error);
     }
-}); 
+}
+
+// 侧边栏的缩放
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleButton = document.getElementById('toggle-button');
+
+    // 检查本地存储中是否有 collapsed 状态
+    const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+        toggleButton.innerHTML = '&raquo;';
+    } else {
+        toggleButton.innerHTML = '&laquo;';
+    }
+
+    toggleButton.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        this.innerHTML = isCollapsed ? '&raquo;' : '&laquo;';
+        // 将 collapsed 状态保存到本地存储
+        localStorage.setItem('sidebar-collapsed', isCollapsed);
+    });
+}

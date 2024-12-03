@@ -1,5 +1,7 @@
 import os
+from unittest.mock import DEFAULT
 from config.db import DBConfig
+from utils import Model
 
 class Config:
     DB = DBConfig()
@@ -9,6 +11,10 @@ class Config:
     PROCESS_CHECK_INTERVAL = 30   # 进程健康检查间隔
     MAX_RESTART_ATTEMPTS = 3      # 最大重启尝试次数
     CONFIG_CHECK_INTERVAL = 5     # 配置检查间隔
+    DEFAULT_NAMESPACE = "default" # 默认命名空间
+    DEFAULT_NAME = "default"      # 默认名称
+    DEFAULT_MODEL_NAME = Model.ModelEnum.GROK_BETA.get_name() # 默认模型名称
+    DEFAULT_PROMPT_TOKENS = 4096  # 默认Prompt最大长度
 
     
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -32,3 +38,6 @@ class Config:
 
     # URL配置
     URL_CONFIG = os.path.join(BASE_DIR, "config/urls.json")
+
+    # Prompt 存放路径
+    PROMPT_PATH = os.path.join(BASE_DIR, "data/prompts/")

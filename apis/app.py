@@ -1,4 +1,6 @@
 from flask import Flask
+from utils.NamespaceMapper import NamespaceMapper
+from utils.PromptTemplateMapper import PromptTemplateMapper
 from utils.log_utils import setup_logging
 from config.db import DBConfig
 from utils.DictionaryMapper import DictionaryMapper
@@ -19,15 +21,19 @@ def create_app():
     app.config['db'] = DBConfig()
     app.config['article_mapper'] = ArticleMapper(db=app.config['db'], logger=logger)
     app.config['dictonary_mapper'] = DictionaryMapper(db=app.config['db'], logger=logger)
+    app.config['playground_mapper'] = PromptTemplateMapper(db=app.config['db'], logger=logger)
+    app.config['namespace_mapper'] = NamespaceMapper(db=app.config['db'], logger=logger)
     app.config['logger'] = logger
     
     # 注册路由
-    from apis.routes import article_routes, job_routes, proxy_routes, view_routes, dictionary_routes
+    from apis.routes import article_routes, job_routes, proxy_routes, view_routes, dictionary_routes, playground_routes, llms_routes
     app.register_blueprint(article_routes.bp)
     app.register_blueprint(job_routes.bp)
     app.register_blueprint(proxy_routes.bp)
     app.register_blueprint(view_routes.bp)
     app.register_blueprint(dictionary_routes.bp)
+    app.register_blueprint(playground_routes.bp)
+    app.register_blueprint(llms_routes.bp)
     
     return app
 

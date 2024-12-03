@@ -29,3 +29,7 @@ def article_page():
 @bp.route('/dictionary')
 def dictionary_page():
     return render_template('dictionary.html', active_page='dictionary')
+
+@bp.route('/playground')
+def playground_page():
+    return render_template('playground.html', active_page='playground')

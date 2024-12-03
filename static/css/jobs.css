@@ -30,43 +30,8 @@ th {
 
 /* 按钮样式 */
 
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
 
-.btn-success {
-    background-color: #28a745;
-    color: white;
-}
 
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-warning {
-    background-color: #ffc107;
-    color: black;
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* 按钮悬停效果 */
-td button.btn-success:not(:disabled):hover {
-    background-color: #218838;
-}
-
-td button.btn-danger:not(:disabled):hover {
-    background-color: #c82333;
-}
-
-td button.btn-warning:not(:disabled):hover {
-    background-color: #e0a800;
-}
 
 /* 模态框样式 */
 .modal {

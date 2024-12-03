@@ -34,6 +34,35 @@ body {
     gap: 20px;
 }
 
+/* ==================== */
+/* 输入框样式 */
+/* ==================== */
+
+.default-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+.default-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.default-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* ==================== */
+/* 按钮样式 */
+/* ==================== */
+
 .btn {
     padding: 8px 16px;
     border: none;
@@ -44,10 +73,70 @@ body {
     transition: background-color 0.3s;
 }
 
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 主要按钮样式 */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:not(:disabled):hover {
+    background-color: #0056b3;
+}
+
+/* 成功按钮样式 */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:not(:disabled):hover {
+    background-color: #218838;
+}
+
+/* 危险按钮样式 */
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:not(:disabled):hover {
+    background-color: #c82333;
+}
+
+/* 警告按钮样式 */
+.btn-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-warning:not(:disabled):hover {
+    background-color: #e0a800;
+}
+
+/* 弱按钮样式 */
+.btn-light {
+    background-color: #f8f9fa;
+    color: black;
+}
+
+.btn-light:not(:disabled):hover {
+    background-color: #e2e6ea;
+}
+
+/* 信息按钮样式 */
 .logout-btn {
     background-color: #e74c3c;
     color: white;
 }
+
+/* ==================== */
+/* 框架样式 */
+/* ==================== */
 
 /* 主容器样式 */
 .main-container {
@@ -64,14 +153,32 @@ body {
     background-color: #34495e;
     padding: 20px 0;
 }
+.sidebar.collapsed {
+    width: 50px;
+}
+
+.toggle-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+}
 
 .menu-item {
-    padding: 12px 20px;
+    padding: 10px;
     color: white;
     cursor: pointer;
     transition: background-color 0.3s;
     display: block;
     text-decoration: none;
+}
+
+.sidebar.collapsed .menu-item {
+    text-align: center;
+    overflow-x: hidden;
+    white-space: nowrap;
 }
 
 .menu-item:hover {
@@ -90,8 +197,19 @@ body {
     overflow-y: auto;
 }
 
-/* 其他通用样式... */
+.toolbar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+/* ===================== */
 /* Toast 样式 */
+/* ===================== */
 .toast {
     position: fixed;
     top: 64px;
@@ -112,3 +230,26 @@ body {
 .toast-error {
     background-color: #f44336 !important;
 }
+
+/*超过宽度的内容不显示*/
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.w10-px {width: 10px;}
+.w20-px {width: 20px;}
+.w40-px {width: 40px;}
+.w60-px {width: 60px;}
+.w80-px {width: 80px;}
+.w100-px {width: 100px;}
+.w120-px {width: 120px;}
+.w140-px {width: 140px;}
+.w160-px {width: 160px;}
+.w180-px {width: 180px;}
+.w200-px {width: 200px;}
+.w50-p {width: 50%;}
+.w100-p {width: 100%;}
+.box-bottom-5px {margin-bottom: 5px;}
+.box-bottom-10px {margin-bottom: 10px;}
+.box-bottom-20px {margin-bottom: 20px;}

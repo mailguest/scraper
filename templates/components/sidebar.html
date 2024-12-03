@@ -1,6 +1,8 @@
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <a href="/proxy" class="menu-item {% if active_page == 'proxy' %}active{% endif %}">IP代理管理</a>
     <a href="/articles" class="menu-item {% if active_page == 'articles' %}active{% endif %}">文章管理</a>
     <a href="/jobs" class="menu-item {% if active_page == 'jobs' %}active{% endif %}">定时任务管理</a>
+    <a href="/playground" class="menu-item {% if active_page == 'playground' %}active{% endif %}">Prompt管理</a>
     <a href="/dictionary" class="menu-item {% if active_page == 'dictionary' %}active{% endif %}">数据字典管理</a>
-</div> 
+    <button class="toggle-button" id="toggle-button">&laquo;</button>
+</div>
