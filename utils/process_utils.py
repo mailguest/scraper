@@ -37,7 +37,7 @@ class ProcessUtils():
 
         process = subprocess.Popen(
             ["python", self.script_path],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, text=True, encoding='utf-8'
         )
 
         # 使用线程捕获子进程输出

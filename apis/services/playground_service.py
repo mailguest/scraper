@@ -100,7 +100,7 @@ class PromptsFileService:
     def chat(self, prompt: PlayGroundModel) -> Optional[str]:
         rtn = None
         # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}, prompt: {prompt.prompt}, user_input: {prompt.user_input}, model_name: '{prompt.model_name}'") 
-        rtn = completion(prompt)
+        rtn = completion(prompt, logger=self.logger)
         # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}")
 
         return rtn
@@ -125,7 +125,7 @@ class PromptsFileService:
             max_tokens=prompt_template.max_tokens,
             prompt=prompt_template.prompt_content
         )
-        rtn = completion(prompt)
+        rtn = completion(prompt, logger=self.logger)
         return rtn
 
 

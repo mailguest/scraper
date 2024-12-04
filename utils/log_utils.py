@@ -49,9 +49,8 @@ def log_subprocess_output(pipe, log_file, logger):
     """
     实时捕获子进程的输出并写入日志文件和控制台。
     """
-    with open(log_file, "a") as f:
+    with open(log_file, "a", encoding="utf-8") as f:
         for line in iter(pipe.readline, ''):
-            decoded_line = line.strip()
-            logger.info(decoded_line)  # 输出到控制台
-            f.write(decoded_line + "\n")  # 写入日志文件
+            logger.info(line.strip())  # 输出到控制台
+            f.write(line)  # 写入日志文件
         f.flush()
