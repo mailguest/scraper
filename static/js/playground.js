@@ -1,4 +1,5 @@
-import { savePromptAction, saveNamespaceAction, loadPromptContentAction, loadTreeAction, loadModelsAction} from './router.js';
+import { savePromptAction, saveNamespaceAction, loadPromptContentAction, 
+    loadTreeAction, loadModelsAction, getPid} from './router.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     loadNamespaceTree();
@@ -42,7 +43,8 @@ const actions = {
     'savePrompt': savePrompt,
     'changeVersion': changeVersion,
     'sendPrompt': sendPrompt,
-    'search': search
+    'search': search,
+    'createAPI': createAPI,
 };
 
 function loadNamespaceTree() {
@@ -112,6 +114,8 @@ function loadPromptContent(namespace, filename, version) {
         document.getElementById('models').value = data.model_name;
         document.getElementById('temperature').value = data.temperature ? data.temperature : 1;
         document.getElementById('maxtoken').value = data.max_token ? data.max_token : 4096;
+        // 去除:disabled的属性
+        document.getElementById('createAPI').disabled = false;
         // 更新版本选择框
         createSelected(data.version, data.versions);
     });
@@ -171,9 +175,9 @@ function createNamespace() {
         const namespaceName = document.getElementById('namespaceInput').value;
 
         saveNamespaceAction(namespaceName, () => {
-            alert(`创建命名空间: ${namespaceName}`);
             document.body.removeChild(modal);
             loadNamespaceTree();
+            alert(`创建命名空间: ${namespaceName}`);
         });
     });
 }
@@ -249,10 +253,10 @@ function savePrompt() {
     const temperature = document.getElementById('temperature').value
     const maxtoken = document.getElementById('maxtoken').value
     savePromptAction(name, namespace, prompt, model, userInput, temperature, maxtoken, (data) => {
-        alert('保存提示词成功');
         // 更新版本选择框
         createSelected(data.version, data.versions);
         loadNamespaceTree();
+        alert('保存提示词成功');
     });
 }
 
@@ -279,4 +283,51 @@ function sendPrompt() {
 function search() {
     const keyword = document.getElementById('search').value
     alert('todo: 搜索提示词成功' + keyword);
+}
+
+// 创建API的逻辑
+function createAPI() {
+    const namespace = document.getElementById('namespaceName').value
+    const name = document.getElementById('promptName').value
+    getPid(namespace, name, (data) => {
+        createAPIModal(data.pid);
+    });
+}
+
+function createAPIModal(pid) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="box-bottom-10px">API</h2>
+            <div class="box-bottom-10px">
+                <pre class="box-bottom-10px">
+<code>POST http://127.0.0.1:5001/v1/api/`+pid+`
+{
+    "user_input": "用户输入",
+    "params": {}
+}</code>
+                </pre>
+                <p class="font-14px">Tips：当user_input为空的时候会使用模板中保存的用户输入。你可以在这里用占位符来达到不直接使用用户输入作为user_input的目的。</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeButton">关闭</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeButton = modal.querySelector('.close-button');
+    const closeButtonFooter = modal.querySelector('#closeButton');
+
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+
+    closeButtonFooter.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
 }

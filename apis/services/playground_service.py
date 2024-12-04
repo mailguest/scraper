@@ -82,6 +82,17 @@ class PromptsFileService:
 
         return prompt_template.namespace, prompt_template.name, prompt_template.version
     
+    def get_pid(self, namespace:str, name:str) -> Optional[str]:
+        """
+        :param namespace: 命名空间
+        :param name: 文件名称
+        :param version: 版本
+        :return: pid
+        """
+        if namespace is None or name is None :
+            raise ValueError("参数不能为空")
+        return self.namespace_mapper.get_pid_by_namespace_name(namespace, name)
+    
 
     # # 执行事务
     # def execute_transaction(self, client, operations):

@@ -164,3 +164,30 @@ def get_versions():
             }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@bp.route('/pid', methods=['POST'])
+def get_pid():
+    """
+    获取prompt的所有版本
+    """
+    data = request.json
+    if data is None:
+        return jsonify({'error': '参数校验错误'}), 400
+    if not check_valid(data, ['name', 'namespace']):
+        return jsonify({'error': '参数校验错误'}), 400
+
+    namespace = data.get('namespace')
+    name = data.get('name')
+
+    try:
+        prompt_file_service = PromptsFileService(logger=logger)
+        _pid = prompt_file_service.get_pid(namespace=namespace, name=name)
+        return jsonify({
+                'message': 'Versions load successfully', 
+                'name': name, 
+                'namespace': namespace, 
+                'pid': _pid
+            }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

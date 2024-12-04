@@ -111,9 +111,17 @@
     background-color: white;
     padding: 20px;
     border-radius: 5px;
-    width: 400px;
+    width: 600px;
     position: relative;
 }
+
+.modal .modal-content pre {
+    padding: 20px;
+    background-color: black;
+    color: white;
+    overflow-x: auto; /* 支持左右滚动条 */
+}
+
 
 .modal .modal-actions {
     display: flex;

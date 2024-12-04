@@ -13,6 +13,7 @@ class NamespaceMapper:
        # 判断索引是否存在
         if not self.collection.index_information().get('namespace_1'):
             # 创建索引
+            self.collection.create_index([('pid', 1)], unique=True)
             self.collection.create_index([('namespace', 1), ('filename', 1)], unique=True)
 
     # 插入命名空间
@@ -20,9 +21,10 @@ class NamespaceMapper:
         try:
             if namespace is None:
                 return 0
+            pid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{namespace}_default"))
             result = self.collection.update_one(
                 {'namespace': namespace},
-                {'$set': {'namespace': namespace}},
+                {'$set': {'namespace': namespace, "pid": pid}},
                 upsert=True
             )
             return result.modified_count
@@ -35,9 +37,10 @@ class NamespaceMapper:
             if namespace is None or filename is None or version is None:
                 return 0
             session = kwargs.get('session', None)
+            pid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{namespace}_{filename}"))
             result = self.collection.update_one(
                 {'namespace': namespace, 'filename': filename},
-                {'$set': {'namespace': namespace, 'filename': filename, 'version': version}},
+                {'$set': {'namespace': namespace, 'filename': filename, 'version': version, 'pid': pid}},
                 upsert=True,
                 session=session
             )
@@ -80,4 +83,22 @@ class NamespaceMapper:
             return result.get('version') if result else None
         except Exception as e:
             self.logger.error(f"Error listing versions: {e}")
+            return None
+        
+    # 根据命名空间和文件名获取pid
+    def get_pid_by_namespace_name(self, namespace: str, filename: str) -> Optional[str]:
+        try:
+            result = self.collection.find_one({'namespace': namespace, 'filename': filename})
+            return result.get('pid') if result else None
+        except Exception as e:
+            self.logger.error(f"Error finding pid by namespace and name: {e}")
+            return None
+        
+    # 根据pid获取文件信息
+    def get_filename_by_pid(self, pid: str) -> Optional[Dict]:
+        try:
+            result = self.collection.find_one({'pid': pid})
+            return result if result else None
+        except Exception as e:
+            self.logger.error(f"Error finding filename by pid: {e}")
             return None

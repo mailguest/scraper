@@ -88,3 +88,16 @@ export function loadModelsAction(callback) {
         callback
     );
 }
+
+// 路由：加载文章pid
+export function getPid(namespace, name, callback) {
+    fetchApi(
+        '/apis/prompts/pid',
+        'POST',
+        {
+            namespace: namespace,
+            name: name
+        },
+        callback
+    );
+}
