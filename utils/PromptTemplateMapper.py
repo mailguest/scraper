@@ -41,6 +41,15 @@ class PromptTemplateMapper:
             self.logger.error(f"Error finding prompt_template: {e}")
             return None
         
+    # 获取提示词模版
+    def get_prompt_by_pid(self, pid: str) -> Optional[PromptTemplate]:
+        try:
+            rtn = self.collection.find_one({'pid': pid})
+            return PromptTemplate.from_dict(rtn) if rtn else None
+        except Exception as e:
+            self.logger.error(f"Error finding prompt_template: {e}")
+            return None
+        
     # 获取文件的所有版本信息
     def get_versions(self, namespace: str, name: str) -> List[str]:
         try:

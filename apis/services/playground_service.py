@@ -99,13 +99,35 @@ class PromptsFileService:
     
     def chat(self, prompt: PlayGroundModel) -> Optional[str]:
         rtn = None
-
         # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}, prompt: {prompt.prompt}, user_input: {prompt.user_input}, model_name: '{prompt.model_name}'") 
-
         rtn = completion(prompt)
         # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}")
 
         return rtn
+    
+    def chat_by_pid(self, pid:str, user_input:str, **kwargs) -> Optional[str]:
+        rtn = None
+        prompt_template = self.prompt_template_mapper.get_prompt_by_pid(pid)
+        if prompt_template is None:
+            raise ValueError(f"传入的模版ID: {pid} 不存在")
+        
+        # 如果 **kwargs 有值，则更新 prompt_template中的prompt_content，替换里面的占位符，占位符格式："{key}"
+        if kwargs is not None and len(kwargs) > 0:
+            prompt_template.prompt_content = prompt_template.prompt_content.format(**kwargs)
+
+        prompt = PlayGroundModel(
+            name=prompt_template.name,
+            namespace=prompt_template.namespace,
+            model_name=prompt_template.model,
+            user_input=user_input,
+            version=prompt_template.version,
+            temperature=prompt_template.temperature,
+            max_tokens=prompt_template.max_tokens,
+            prompt=prompt_template.prompt_content
+        )
+        rtn = completion(prompt)
+        return rtn
+
 
     # # 执行事务
     # def execute_transaction(self, client, operations):

@@ -362,7 +362,7 @@ function createAPIModal(pid) {
             <h2 class="box-bottom-10px">API</h2>
             <div class="box-bottom-10px">
                 <pre class="box-bottom-10px">
-<code>POST http://127.0.0.1:5001/v1/api/`+pid+`
+<code>POST http://127.0.0.1:5001/apis/llms/v1/`+pid+`
 {
     "user_input": "用户输入",
     "params": {}
