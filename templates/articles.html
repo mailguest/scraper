@@ -15,14 +15,14 @@
                 <i class="fas fa-spider"></i> 立即爬取
             </button>
         </div> -->
-        <div class="filter-row">
+        <div class="toolbar">
             <div class="filter-item">
                 <label>日期：</label>
-                <input type="date" id="dateFilter" onchange="changePage(1)">
+                <input type="date" id="dateFilter" class="default-input" onchange="changePage(1)">
             </div>
             <div class="filter-item">
                 <label>来源：</label>
-                <select id="source" onchange="changePage(1)">
+                <select id="source" class="default-select" onchange="changePage(1)">
                     <option value="">全部</option>
                     <option value="SinaFinance">新浪财经</option>
                     <option value="WallStreetCN">华尔街见闻</option>
@@ -31,7 +31,7 @@
             </div>
             <div class="filter-item">
                 <label>状态：</label>
-                <select id="status" onchange="changePage(1)">
+                <select id="status" class="default-select" onchange="changePage(1)">
                     <option value="">全部</option>
                     <option value="success" selected>内容抓取成功</option>
                     <option value="pending">待内容抓取</option>
@@ -40,7 +40,7 @@
             </div>
             <div class="filter-item">
                 <label>每页显示：</label>
-                <select id="pageSize" onchange="changePage(1)">
+                <select id="pageSize" class="default-select" onchange="changePage(1)">
                     <option value="10">10条</option>
                     <option value="20">20条</option>
                     <option value="50">50条</option>
