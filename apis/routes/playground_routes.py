@@ -11,21 +11,9 @@ from utils.Model import ModelEnum
 from utils.PlayGroundModel import PlayGroundModel
 from utils.StatusEnum import StatusEnum
 from utils.PromptTemplate import PromptTemplate
+from utils.check import check_valid, convert_to_object
 
 bp = Blueprint('playground', __name__, url_prefix='/apis/prompts')
-
-def check_valid(data, keys:list) -> bool:
-    for key in keys:
-        if key not in data:
-            return False
-        if not data.get(key):
-            return False
-    return True
-
-def convert_to_object(data: Any):
-    if data is None:
-        raise ValueError("参数校验错误")
-    return {key: data.get(key, None) for key in data.keys()}
 
 @bp.route('/save', methods=['POST'])
 def save_or_update_prompt():

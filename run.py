@@ -114,4 +114,7 @@ def main():
         process_manager.shutdown()
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    _ = load_dotenv()
+
     main()

@@ -16,6 +16,12 @@ class PlayGroundModel(BaseModel):
     max_tokens: Annotated[int, Field(default=Config.DEFAULT_PROMPT_TOKENS, strict=True, ge=0, le=Config.DEFAULT_PROMPT_TOKENS)]# conint(default=Config.DEFAULT_PROMPT_TOKENS, ge=0, le=Config.DEFAULT_PROMPT_TOKENS)
     prompt: str = Field(max_length=Config.DEFAULT_PROMPT_TOKENS)
 
+    @field_validator('name', 'namespace', 'model_name', 'user_input', 'prompt', mode='before')
+    def strip_whitespace(cls, v):
+        if isinstance(v, str):
+            return v.strip()
+        return v
+
     @field_validator('temperature', mode='before')
     def validate_temperature(cls, v):
         try:

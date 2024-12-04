@@ -90,13 +90,36 @@ export function loadModelsAction(callback) {
 }
 
 // 路由：加载文章pid
-export function getPid(namespace, name, callback) {
+export function getPidAction(namespace, name, callback) {
     fetchApi(
         '/apis/prompts/pid',
         'POST',
         {
             namespace: namespace,
             name: name
+        },
+        callback
+    );
+}
+
+export function sendPromptAction(namespace, name, prompt, model, userInput, temperature, maxtoken, callback) {
+    // const data = {};
+    // data["reply"] = `{"judge":"PASS"}`;
+    // data["time"] = new Date().toLocaleString();
+    // data["user"] = model;
+    // callback(data);
+    // return 
+    fetchApi(
+        '/apis/llms/chat',
+        'POST',
+        {
+            namespace: namespace,
+            name: name,
+            prompt: prompt,
+            user_input: userInput, 
+            model_name: model, 
+            temperature: temperature, 
+            maxtoken: maxtoken,
         },
         callback
     );

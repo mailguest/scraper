@@ -27,5 +27,5 @@ class ModelEnum(enum.Enum):
     
     @staticmethod
     def get_models():
-        return [model.name for model in ModelEnum]
+        return [model.get_name() for model in ModelEnum]
 

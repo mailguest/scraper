@@ -85,7 +85,6 @@ async function executeJob(jobId) {
             method: 'POST'
         });
         const result = await response.json();
-        alert(result.message || '执行成功');
     } catch (error) {
         console.error('Error executing job:', error);
         alert('执行任务失败');
@@ -179,8 +178,6 @@ async function toggleJob(jobId, button) {
             
             const executeButton = row.querySelector('button[onclick^="executeJob"]');
             executeButton.disabled = !enabled;
-            
-            alert(result.message);
         } else {
             alert(result.error || '操作失败');
         }

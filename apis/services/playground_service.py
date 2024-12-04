@@ -1,9 +1,13 @@
+import os
 from typing import Dict, List, Optional
 from flask import current_app
+from apis.services.chat_service import completion
+from utils.PlayGroundModel import PlayGroundModel
 from utils.NamespaceMapper import NamespaceMapper
 from utils.PromptTemplate import PromptTemplate
 from utils.PromptTemplateMapper import PromptTemplateMapper
 from utils.log_utils import setup_logging
+from openai import OpenAI
 
 class PromptsFileService:
     def __init__(self, logger=None):
@@ -93,6 +97,15 @@ class PromptsFileService:
             raise ValueError("参数不能为空")
         return self.namespace_mapper.get_pid_by_namespace_name(namespace, name)
     
+    def chat(self, prompt: PlayGroundModel) -> Optional[str]:
+        rtn = None
+
+        # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}, prompt: {prompt.prompt}, user_input: {prompt.user_input}, model_name: '{prompt.model_name}'") 
+
+        rtn = completion(prompt)
+        # self.logger.info(f"api_key: {os.getenv('XAI_API_KEY')}, base_url: {os.getenv('BASE_URL')}")
+
+        return rtn
 
     # # 执行事务
     # def execute_transaction(self, client, operations):

@@ -1,9 +1,22 @@
+// playground.js
 import { savePromptAction, saveNamespaceAction, loadPromptContentAction, 
-    loadTreeAction, loadModelsAction, getPid} from './router.js';
+    loadTreeAction, loadModelsAction, getPidAction, sendPromptAction} from './router.js';
+import { markedPromise } from './marked-wrapper.js';
+// import { marked } from 'https://cdn.jsdelivr.net/npm/marked/marked.esm.js';
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
     loadNamespaceTree();
     loadModels();
+
+    const namespace = localStorage.getItem('namespace');
+    const filename = localStorage.getItem('filename');
+    const version = localStorage.getItem('version');
+
+    if (namespace && filename && version) {
+        loadPromptContent(namespace, filename, version);
+    }
 });
 
 // 添加事件监听器
@@ -46,6 +59,7 @@ const actions = {
     'search': search,
     'createAPI': createAPI,
 };
+
 
 function loadNamespaceTree() {
     loadTreeAction((data) => {
@@ -118,6 +132,10 @@ function loadPromptContent(namespace, filename, version) {
         document.getElementById('createAPI').disabled = false;
         // 更新版本选择框
         createSelected(data.version, data.versions);
+        // 更新本地存储
+        localStorage.setItem('namespace', namespace);
+        localStorage.setItem('filename', filename);
+        localStorage.setItem('version', version);
     });
 }
 
@@ -271,12 +289,52 @@ function changeVersion() {
 
 // 发送提示词的逻辑
 function sendPrompt() {
+    const namespace = document.getElementById('namespaceName').value
+    const name = document.getElementById('promptName').value
     const prompt = document.getElementById('systemPrompt').value
     const model = document.getElementById('models').value
     const userInput = document.getElementById('userInput').value
     const temperature = document.getElementById('temperature').value
     const maxtoken = document.getElementById('maxtoken').value
-    alert('todo: 发送提示词成功');
+
+    createReplyItem({"time":new Date().toLocaleString(), "user":"user", "reply":userInput});
+    createReplyItem({"time":new Date().toLocaleString(), "user":model, "reply":"连接中..."});
+    setTimeout(() => {
+        sendPromptAction(namespace, name, prompt, model, userInput, temperature, maxtoken, (data) => {
+            deleteReplyFirstItem();
+            createReplyItem(data);
+        });
+    }, 1000);
+    // sendPromptAction(namespace, name, prompt, model, userInput, temperature, maxtoken, (data) => {
+    //     deleteReplyFirstItem();
+    //     createReplyItem(data);
+    // });
+}
+
+function deleteReplyFirstItem() {
+    const historyRecords = document.getElementById('historyRecords');
+    if (historyRecords.children.length > 0) {
+        historyRecords.removeChild(historyRecords.children[0]);
+    }
+}
+
+async function createReplyItem(data) {
+    const historyRecords = document.getElementById('historyRecords');
+    const replyItem = document.createElement('div');
+    replyItem.className = 'reply-item';
+
+    const marked = await markedPromise;
+
+    // 使用 marked.parse 渲染 Markdown 格式的内容
+    const replyContent = marked.parse(data.reply);
+
+    replyItem.innerHTML = `
+    <div class="reply-item-label">[${data.time}]${data.user}:</div>
+    <div class="history-item" style="overflow-wrap: break-word; font-size: 12px; line-height: 15px; margin-top: 0px;">
+        ${replyContent}
+    </div>
+    `;
+    historyRecords.insertBefore(replyItem, historyRecords.firstChild);
 }
 
 // 搜索提示词的逻辑
@@ -289,7 +347,7 @@ function search() {
 function createAPI() {
     const namespace = document.getElementById('namespaceName').value
     const name = document.getElementById('promptName').value
-    getPid(namespace, name, (data) => {
+    getPidAction(namespace, name, (data) => {
         createAPIModal(data.pid);
     });
 }

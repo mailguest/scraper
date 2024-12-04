@@ -114,7 +114,7 @@ def execute_job(job_id):
             # 执行任务
             func = function_map[job['function']]
             logger.info(f"Executing job {job_id} with function: {func.__name__}")
-            func(logger)
+            func(logger, db=current_app.config['db'])
             return jsonify({"message": f"Job {job_id} executed successfully"})
         except Exception as e:
             logger.error(f"Error executing job {job_id}: {str(e)}")
