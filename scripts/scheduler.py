@@ -93,7 +93,7 @@ def schedule_jobs(jobs, logger):
         job_trigger = CronTrigger.from_crontab(job_cron)
         job_args = [job_key, logger]
 
-        logger.info(f"添加定时任务: {job_func}，传入参数：{job_args}, 触发器规则: {job_trigger}")
+        logger.info(f"添加定时任务: {job_func.__name__}")
         scheduler.add_job(func=run_task_with_lock, trigger=job_trigger, args=job_args, id=job_key)
         
     
@@ -112,7 +112,7 @@ def main():
             # 检查配置文件是否有更新
             current_mtime = os.path.getmtime(Config.SCHEDULE_CONFIG)
             if current_mtime > last_config_mtime:
-                logger.info("配置文件已更改，重新加载任务...")
+                logger.info("重新加载定时任务...")
 
                 # 如果存在旧的调度器，先关闭它
                 if current_scheduler:

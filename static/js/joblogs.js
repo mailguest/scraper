@@ -1,83 +1,164 @@
 let currentPage = 1;
+let totalPages = 1;
 const pageSize = 10;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadLogs();
 });
 
+function getLogs(taskName, status, page, size, callback) {
+    fetch(`/apis/jobs/logs?page=${page}&size=${size}${taskName ? '&taskName=' + taskName : ''}${status ? '&status=' + status : ''}`)
+    .then(response => response.json())
+    .then(data => {callback(data);})
+    .catch(error => {
+        console.error('Error loading logs:', error);
+        showToast('error', '加载列表失败：' + error.message);
+    });
+}
+
+function renderLogs(data) {
+    // 检查数据是否为空
+    if (!data.items || data.items.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="6" style="text-align: center; padding: 20px;">暂无数据</td>`;
+        tbody.appendChild(row);
+        totalPages = 1;
+    } else {
+        const logsTable = document.getElementById('logsTable');
+        logsTable.innerHTML = '';
+
+        data.items.forEach(log => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${log.task_name}</td>
+                <td>${new Date(log.start_time).toLocaleString()}</td>
+                <td>${new Date(log.end_time).toLocaleString()}</td>
+                <td>${log.status}</td>
+                <td>${log.data_count}</td>
+                <td>${log.duration}</td>
+            `;
+            logsTable.appendChild(row);
+        });
+        totalPages = data.total_pages;
+    }
+    updatePagination();
+}
+
 function loadLogs() {
     const taskName = document.getElementById('searchTaskName').value;
     const status = document.getElementById('searchStatus').value;
 
     // 模拟获取数据
-    const logs = getLogs(taskName, status, currentPage, pageSize);
-
-    const logsTable = document.getElementById('logsTable');
-    logsTable.innerHTML = '';
-
-    logs.forEach(log => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${log.task_name}</td>
-            <td>${new Date(log.start_time.$date).toLocaleString()}</td>
-            <td>${new Date(log.end_time.$date).toLocaleString()}</td>
-            <td>${log.status}</td>
-            <td>${log.data_count}</td>
-            <td>${log.duration.toFixed(3)}</td>
-        `;
-        logsTable.appendChild(row);
+    getLogs(taskName, status, currentPage, pageSize, function(data) {
+        renderLogs(data);
     });
-
-    updatePagination();
 }
 
 function searchLogs() {
-    currentPage = 1;
     loadLogs();
 }
 
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        loadLogs();
-    }
-}
-
-function nextPage() {
-    currentPage++;
-    loadLogs();
+function changePage(page) {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    loadLogs(currentPage);
 }
 
 function updatePagination() {
-    const pageInfo = document.getElementById('pageInfo');
-    pageInfo.textContent = `第 ${currentPage} 页`;
-}
-
-function getLogs(taskName, status, page, size) {
-    // 模拟数据
-    const allLogs = [
-        {
-            "task_name": "content_scraper",
-            "start_time": { "$date": "2024-11-27T23:15:00.005Z" },
-            "status": "completed",
-            "data_count": 0,
-            "duration": 0.014383,
-            "end_time": { "$date": "2024-11-27T23:15:00.019Z" }
-        },
-        // 添加更多模拟数据
-    ];
-
-    // 过滤数据
-    let filteredLogs = allLogs;
-    if (taskName) {
-        filteredLogs = filteredLogs.filter(log => log.task_name.includes(taskName));
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    // 如果总页数为1，清空分页并推出
+    if (totalPages <= 1) {
+        return;
     }
-    if (status) {
-        filteredLogs = filteredLogs.filter(log => log.status === status);
+    // 添加"上一页"按钮
+    if (currentPage > 1) {
+        pagination.innerHTML += `
+            <button onclick="changePage(${currentPage - 1})" class="btn btn-light">上一页</button>
+        `;
     }
 
-    // 分页
-    const start = (page - 1) * size;
-    const end = start + size;
-    return filteredLogs.slice(start, end);
+    // 页码显示逻辑
+    if (totalPages <= 6) {
+        // 总页数不超过6页时，显示所有页码
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `
+                <button onclick="changePage(${i})" 
+                        class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
+            `;
+        }
+    } else {
+        // 当总页数大于6页时的显示逻辑
+        let startPage, endPage;
+        
+        if (currentPage <= 3) {
+            // 当前页靠近开始
+            startPage = 1;
+            endPage = 5;
+            
+            // 显示页码
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
+                `;
+            }
+            
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            pagination.innerHTML += `
+                <button onclick="changePage(${totalPages})" 
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-light'}">${totalPages}</button>
+            `;
+            
+        } else if (currentPage >= totalPages - 2) {
+            // 当前页靠近结束
+            startPage = totalPages - 4;
+            endPage = totalPages;
+            
+            pagination.innerHTML += `
+                <button onclick="changePage(1)" 
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-light'}">1</button>
+            `;
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
+                `;
+            }
+            
+        } else {
+            // 当前页在中间
+            startPage = currentPage - 2;
+            endPage = currentPage + 2;
+            
+            pagination.innerHTML += `
+                <button onclick="changePage(1)" 
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-light'}">1</button>
+            `;
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <button onclick="changePage(${i})" 
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
+                `;
+            }
+            
+            pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
+            pagination.innerHTML += `
+                <button onclick="changePage(${totalPages})" 
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-light'}">${totalPages}</button>
+            `;
+        }
+    }
+
+    // 添加"下一页"按钮
+    if (currentPage < totalPages) {
+        pagination.innerHTML += `
+            <button onclick="changePage(${currentPage + 1})" class="btn btn-light">下一页</button>
+        `;
+    }
 }
+

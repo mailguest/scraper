@@ -103,12 +103,6 @@ export function getPidAction(namespace, name, callback) {
 }
 
 export function sendPromptAction(namespace, name, prompt, model, userInput, temperature, maxtoken, callback) {
-    // const data = {};
-    // data["reply"] = `{"judge":"PASS"}`;
-    // data["time"] = new Date().toLocaleString();
-    // data["user"] = model;
-    // callback(data);
-    // return 
     fetchApi(
         '/apis/llms/chat',
         'POST',

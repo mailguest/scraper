@@ -35,7 +35,6 @@ class ProcessManager:
             process = process_utils.start()
             if process:
                 self.processes[name] = ProcessInfo(process=process, name=name)
-                logger.info(f"Started {name} with PID {process.pid} successfully.")
                 return self.processes[name]
         except Exception as e:
             logger.error(f"Error starting {name}: {str(e)}")
@@ -80,7 +79,6 @@ class ProcessManager:
 
 
 def main():
-    logger.info("Starting the API server...")
     process_manager = ProcessManager()
     try:
         # 启动API

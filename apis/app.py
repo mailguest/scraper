@@ -1,10 +1,8 @@
+from gevent.pywsgi import WSGIServer
 from flask import Flask
-from utils.NamespaceMapper import NamespaceMapper
-from utils.PromptTemplateMapper import PromptTemplateMapper
 from utils.log_utils import setup_logging
 from config.db import DBConfig
-from utils.DictionaryMapper import DictionaryMapper
-from utils.ArticleMapper import ArticleMapper
+from utils import ArticleMapper, DictionaryMapper, PromptTemplateMapper, NamespaceMapper, TaskLogsMapper
 import os
 
 # 获取项目根目录
@@ -23,6 +21,7 @@ def create_app():
     app.config['dictonary_mapper'] = DictionaryMapper(db=app.config['db'], logger=logger)
     app.config['playground_mapper'] = PromptTemplateMapper(db=app.config['db'], logger=logger)
     app.config['namespace_mapper'] = NamespaceMapper(db=app.config['db'], logger=logger)
+    app.config['tasklogs_mapper'] = TaskLogsMapper(db=app.config['db'], logger=logger)
     app.config['logger'] = logger
     
     # 注册路由
@@ -42,4 +41,13 @@ if __name__ == "__main__":
     logger = setup_logging("API", "api.log")
     logger.info("Starting API server...")
     app = create_app()
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    
+    host = "127.0.0.1"
+    port = os.getenv("API_PORT", 5001)
+    url = f"http://{host}:{port}"
+    
+    logger.info(f"API server is running at {url}")
+    
+    # app.run(debug=True, host='0.0.0.0', port=5001)
+    http_server = WSGIServer((host, port), app)
+    http_server.serve_forever()

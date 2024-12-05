@@ -36,7 +36,7 @@ def scrape_article_content(article: Article, logger:Logger, db:DBConfig) -> int:
         # 保存文章内容
         mapper = ArticleMapper(db=db, logger=logger)
         success_data_count = mapper.update_article(article)
-        logger.info(f"Saved article content for {article.UUID}.json")
+        logger.info(f"保存文章内容成功 uuid : {article.UUID}")
     except Exception as e:
         logger.error(f"保存文章内容失败: {str(e)}")
     finally:

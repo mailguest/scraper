@@ -12,6 +12,7 @@ pymongo==4.10.1
 openai==1.56.2
 python-dotenv==1.0.1
 pydantic==2.9.2
+gevent==24.11.1
 
 # Testing dependencies (install manually or via a script)
 # pytest==7.4.4

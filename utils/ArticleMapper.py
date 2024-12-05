@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-
-from pytz import ZERO
 from .Article import Article
 from utils.log_utils import setup_logging
 from config.db import DBConfig

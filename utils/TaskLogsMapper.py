@@ -4,7 +4,6 @@ from flask import current_app
 from config.db import DBConfig
 from utils.log_utils import setup_logging
 
-
 class TaskLogsMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("TaskLogsMapper", "TaskLogsMapper.log") 
@@ -33,3 +32,34 @@ class TaskLogsMapper:
                 'status': 'completed'
             }}
         )
+        
+    def get_task_logs(self, page:int=1, size:int=10, task_name:str=None, status:str=None) -> dict:
+        filter = {}
+        if task_name:
+            filter['task_name'] = task_name
+        if status:
+            filter['status'] = status
+            
+        total = self.collection.count_documents(filter)
+        logs_cursor = self.collection.find(filter).skip((page-1)*size).limit(size)
+        
+        logs = []
+        for log in logs_cursor:
+            log_entry = {
+                'task_name': log.get('task_name', None),
+                'start_time': log.get('start_time', None),
+                'status': log.get('status', None),
+                'data_count': log.get('data_count', None),
+                'duration': log.get('duration', None),
+                'end_time': log.get('end_time', None)
+            }
+            if log_entry:
+                logs.append(log_entry)
+        
+        return {
+            'total': total,
+            'items': logs,
+            'page': page,
+            'size': size,
+            'total_pages': (total + size - 1) // size
+        }
