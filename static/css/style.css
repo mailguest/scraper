@@ -11,7 +11,11 @@ body {
     flex-direction: column;
 }
 
+
+
+/* ==================== */
 /* 顶部状态栏样式 */
+/* ==================== */
 .header {
     height: 60px;
     background-color: #2c3e50;
@@ -22,12 +26,10 @@ body {
     padding: 0 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 .logo {
     font-size: 20px;
     font-weight: bold;
 }
-
 .user-info {
     display: flex;
     align-items: center;
@@ -62,7 +64,6 @@ body {
 /* ==================== */
 /* 按钮样式 */
 /* ==================== */
-
 .btn {
     padding: 8px 16px;
     border: none;
@@ -118,6 +119,16 @@ body {
     background-color: #e0a800;
 }
 
+/* 信息按钮样式 */
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:not(:disabled):hover {
+    background-color: #138496;
+}
+
 /* 弱按钮样式 */
 .btn-light {
     background-color: #f8f9fa;
@@ -127,24 +138,99 @@ body {
 .btn-light:not(:disabled):hover {
     background-color: #e2e6ea;
 }
+/* 加载状态按钮样式 */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
 
-/* 信息按钮样式 */
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 0.75s linear infinite;
+}
+
+/* todo */
 .logout-btn {
     background-color: #e74c3c;
     color: white;
 }
 
 /* ==================== */
+/* 连接样式 */
+/* ==================== */
+
+.link {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+
+/* ==================== */
 /* 框架样式 */
 /* ==================== */
 
-/* 主容器样式 */
+/* 主框架 - 主容器样式 */
 .main-container {
     flex: 1;
     display: flex;
     background-color: #f5f5f5;
     min-height: 100vh;
     height: 100%;
+}
+/* 主框架 - 内容容器样式 */
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 子页面 - 主体容器样式 */
+.container {
+    width: 100%;
+}
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 表格样式 */
+.list-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.list-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.list-content th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.list-content th {
+    background-color: #f8f9fa;
+}
+.list-content tr {
+    cursor: pointer; /* 显示手型光标 */
+    transition: background-color 0.2s; /* 添加过渡效果 */
+}
+.list-content tr:hover {
+    background-color: #f5f5f5; /* 鼠标悬停时的背景色 */
 }
 
 /* 侧边栏样式 */
@@ -156,7 +242,6 @@ body {
 .sidebar.collapsed {
     width: 50px;
 }
-
 .toggle-button {
     background-color: #333;
     color: white;
@@ -165,7 +250,6 @@ body {
     padding: 10px;
     width: 100%;
 }
-
 .menu-item {
     padding: 10px;
     color: white;
@@ -174,29 +258,20 @@ body {
     display: block;
     text-decoration: none;
 }
-
 .sidebar.collapsed .menu-item {
     text-align: center;
     overflow-x: hidden;
     white-space: nowrap;
 }
-
 .menu-item:hover {
     background-color: #2c3e50;
 }
-
 .menu-item.active {
     background-color: #2c3e50;
     border-left: 4px solid #3498db;
 }
 
-/* 内容区样式 */
-.content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
-
+/* 工具栏 */
 .toolbar {
     display: flex;
     justify-content: flex-start;
@@ -206,6 +281,102 @@ body {
     flex-wrap: nowrap;
     justify-content: space-between;
 }
+
+/* 搜索栏 */
+.toolbar-search {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+.toolbar-search * {
+    margin-right: 10px;
+}
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+.pagination-ellipsis {
+    margin: 0 8px;
+    color: #666;
+}
+
+/* ===================== */
+/* 弹窗框样式 */
+/* ===================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000; /* 添加z-index确保模态框在最上层 */
+    padding: 20px;
+}
+.modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 20px;
+    width: 50%;
+    transform: translateY(-50%);
+    border-radius: 8px;
+    position: relative; /* 添加相对定位 */
+    display: flex;
+    flex-direction: column;
+    animation: modalopen 0.4s;
+    animation-fill-mode: forwards;
+}
+@keyframes modalopen {
+    from { opacity: 0; transform: translateY(-100%); }
+    to { opacity: 1; transform: translateY(5%); }
+}
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.form-content label {
+    width: 100px;
+    text-align: left;
+    margin-right: 10px;
+}
+.form-content select {
+    flex: 1;
+}
+.form-content input {
+    flex: 1;
+}
+
+.form-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+/* 关闭按钮样式 */
+.modal-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    z-index: 1;
+}
+.modal-close:hover,
+.modal-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 
 /* ===================== */
 /* Toast 样式 */
@@ -230,6 +401,10 @@ body {
 .toast-error {
     background-color: #f44336 !important;
 }
+
+/* ===================== */
+/* 通用样式 */
+/* ===================== */
 
 /*超过宽度的内容不显示*/
 .ellipsis {
@@ -258,3 +433,13 @@ body {
 .font-16px {font-size: 16px;}
 .font-18px {font-size: 18px;}
 .font-20px {font-size: 20px;}
+
+/* ===================== */
+/* 动画样式 */
+/* ===================== */
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+} 

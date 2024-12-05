@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}定时任务执行日志{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="title">定时任务执行日志</h1>
+    <div class="list-content">
+        <div class="toolbar-search">
+            <input type="text" id="searchTaskName" class="default-input" placeholder="任务名">
+            <select id="searchStatus" class="default-select">
+                <option value="">所有状态</option>
+                <option value="completed">完成</option>
+                <option value="running">执行中</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchLogs()">搜索</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>任务名</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>状态</th>
+                    <th>影响记录条数</th>
+                    <th>执行时间 (秒)</th>
+                </tr>
+            </thead>
+            <tbody id="logsTable">
+            </tbody>
+        </table>
+        <div class="pagination">
+            <button class="btn btn-light" onclick="prevPage()">上一页</button>
+            <span id="pageInfo"></span>
+            <button class="btn btn-light" onclick="nextPage()">下一页</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/joblogs.js') }}"></script>
+{% endblock %}

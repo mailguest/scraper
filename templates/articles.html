@@ -8,19 +8,14 @@
 
 {% block content %}
 <div class="container">
-    <h1>文章管理</h1>
-    <div class="job-list">
-        <!-- <div class="action-buttons">
-            <button class="btn btn-primary" onclick="startScrape()">
-                <i class="fas fa-spider"></i> 立即爬取
-            </button>
-        </div> -->
-        <div class="toolbar">
-            <div class="filter-item">
+    <h1 class="title">文章管理</h1>
+    <div class="list-content ">
+        <div class="toolbar-search">
+            <div >
                 <label>日期：</label>
                 <input type="date" id="dateFilter" class="default-input" onchange="changePage(1)">
             </div>
-            <div class="filter-item">
+            <div >
                 <label>来源：</label>
                 <select id="source" class="default-select" onchange="changePage(1)">
                     <option value="">全部</option>
@@ -29,7 +24,7 @@
                     <option value="Cls">财联社</option>
                 </select>
             </div>
-            <div class="filter-item">
+            <div >
                 <label>状态：</label>
                 <select id="status" class="default-select" onchange="changePage(1)">
                     <option value="">全部</option>
@@ -38,7 +33,7 @@
                     <option value="failed">内容抓取失败</option>
                 </select>
             </div>
-            <div class="filter-item">
+            <div >
                 <label>每页显示：</label>
                 <select id="pageSize" class="default-select" onchange="changePage(1)">
                     <option value="10">10条</option>

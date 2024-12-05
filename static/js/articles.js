@@ -34,10 +34,10 @@ function loadArticles() {
                         <td>${article.source}</td>
                         <td>${article.status}</td>
                         <td class="action-column">
-                            <button class="action-btn action-btn-info" onclick="event.stopPropagation()">
+                            <button class="btn btn-info" onclick="event.stopPropagation()">
                                 查看
                             </button>
-                            <button class="action-btn action-btn-danger" onclick="event.stopPropagation()">
+                            <button class="btn btn-danger" onclick="event.stopPropagation()">
                                 删除
                             </button>
                         </td>
@@ -47,14 +47,14 @@ function loadArticles() {
                     row.addEventListener('click', () => viewArticle(article.UUID));
                     
                     // 为查看按钮添加点击事件
-                    const viewButton = row.querySelector('.action-btn-info');
+                    const viewButton = row.querySelector('.btn-info');
                     viewButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         viewArticle(article.UUID);
                     });
                     
                     // 为删除按钮添加点击事件
-                    const deleteButton = row.querySelector('.action-btn-danger');
+                    const deleteButton = row.querySelector('.btn-danger');
                     deleteButton.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (confirm('确定要删除这篇文章吗？')) {
@@ -86,7 +86,7 @@ function updatePagination() {
     // 添加"上一页"按钮
     if (currentPage > 1) {
         pagination.innerHTML += `
-            <button onclick="changePage(${currentPage - 1})" class="btn btn-secondary">上一页</button>
+            <button onclick="changePage(${currentPage - 1})" class="btn btn-light">上一页</button>
         `;
     }
 
@@ -96,7 +96,7 @@ function updatePagination() {
         for (let i = 1; i <= totalPages; i++) {
             pagination.innerHTML += `
                 <button onclick="changePage(${i})" 
-                        class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                        class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
             `;
         }
     } else {
@@ -112,14 +112,14 @@ function updatePagination() {
             for (let i = startPage; i <= endPage; i++) {
                 pagination.innerHTML += `
                     <button onclick="changePage(${i})" 
-                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
                 `;
             }
             
             pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
             pagination.innerHTML += `
                 <button onclick="changePage(${totalPages})" 
-                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-secondary'}">${totalPages}</button>
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-light'}">${totalPages}</button>
             `;
             
         } else if (currentPage >= totalPages - 2) {
@@ -129,14 +129,14 @@ function updatePagination() {
             
             pagination.innerHTML += `
                 <button onclick="changePage(1)" 
-                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-secondary'}">1</button>
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-light'}">1</button>
             `;
             pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
             
             for (let i = startPage; i <= endPage; i++) {
                 pagination.innerHTML += `
                     <button onclick="changePage(${i})" 
-                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
                 `;
             }
             
@@ -147,21 +147,21 @@ function updatePagination() {
             
             pagination.innerHTML += `
                 <button onclick="changePage(1)" 
-                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-secondary'}">1</button>
+                        class="btn ${currentPage === 1 ? 'btn-primary' : 'btn-light'}">1</button>
             `;
             pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
             
             for (let i = startPage; i <= endPage; i++) {
                 pagination.innerHTML += `
                     <button onclick="changePage(${i})" 
-                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-secondary'}">${i}</button>
+                            class="btn ${currentPage === i ? 'btn-primary' : 'btn-light'}">${i}</button>
                 `;
             }
             
             pagination.innerHTML += `<span class="pagination-ellipsis">...</span>`;
             pagination.innerHTML += `
                 <button onclick="changePage(${totalPages})" 
-                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-secondary'}">${totalPages}</button>
+                        class="btn ${currentPage === totalPages ? 'btn-primary' : 'btn-light'}">${totalPages}</button>
             `;
         }
     }
@@ -169,7 +169,7 @@ function updatePagination() {
     // 添加"下一页"按钮
     if (currentPage < totalPages) {
         pagination.innerHTML += `
-            <button onclick="changePage(${currentPage + 1})" class="btn btn-secondary">下一页</button>
+            <button onclick="changePage(${currentPage + 1})" class="btn btn-light">下一页</button>
         `;
     }
 }

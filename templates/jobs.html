@@ -9,9 +9,12 @@
 
 {% block content %}
 <div class="container">
-    <h1>定时任务管理</h1>
-    <div class="job-list">
-        <button class="btn btn-primary" onclick="showCreateModal()">新建任务</button>
+    <h1 class="title">定时任务管理</h1>
+    <div class="list-content">
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="showCreateModal()">新建任务</button>
+            <a class="link" href="/joblogs">执行记录</a>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -32,24 +35,26 @@
 <!-- 创建/编辑任务的模态框 -->
 <div id="jobModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2 id="modalTitle">创建任务</h2>
-        <form id="jobForm">
+        <div class="toolbar">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle" class="title">创建任务</h2></div>
+        <div>
+        <form id="jobForm" class="form-content">
             <div class="form-group">
                 <label for="jobId">任务ID</label>
-                <input type="text" id="jobId" name="id" required>
+                <input class="default-input" type="text" id="jobId" name="id" required>
             </div>
             <div class="form-group">
                 <label for="jobName">任务名称</label>
-                <input type="text" id="jobName" name="name" required>
+                <input class="default-input" type="text" id="jobName" name="name" required>
             </div>
             <div class="form-group">
                 <label for="jobCron">Cron表达式</label>
-                <input type="text" id="jobCron" name="cron" required>
+                <input class="default-input" type="text" id="jobCron" name="cron" required>
             </div>
             <div class="form-group">
                 <label for="jobFunction">执行函数</label>
-                <select id="jobFunction" name="function" required>
+                <select class="default-select" id="jobFunction" name="function" required>
                     <option value="scrape_list">列表爬虫</option>
                     <option value="scrape_content">内容爬虫</option>
                     <option value="scrape_ip_proxies">IP代理爬虫</option>
@@ -57,17 +62,20 @@
             </div>
             <div class="form-group">
                 <label for="jobEnabled">是否启用</label>
-                <select id="jobEnabled" name="enabled">
+                <select class="default-select" id="jobEnabled" name="enabled">
                     <option value="true">是</option>
                     <option value="false">否</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="jobDescription">描述</label>
-                <input type="text" id="jobDescription" name="description">
+                <input class="default-input" type="text" id="jobDescription" name="description">
             </div>
-            <button type="submit" class="btn btn-primary">保存</button>
+            <div class="form-button">
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
         </form>
+    </div>
     </div>
 </div>
 {% endblock %}

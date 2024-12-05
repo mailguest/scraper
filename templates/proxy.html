@@ -8,8 +8,8 @@
 
 {% block content %}
 <div class="container">
-    <h1>IP代理管理</h1>
-    <div class="proxy-list">
+    <h1 class="title">IP代理管理</h1>
+    <div class="list-content">
         <div class="toolbar">
             <button class="btn btn-primary" onclick="refreshProxies()">刷新代理</button>
             <span class="proxy-count">当前可用代理：<span id="proxyCount">0</span></span>
@@ -22,7 +22,7 @@
                     <th>地区</th>
                     <th>有效期</th>
                     <th>状态</th>
-                    <th>操作</th>
+                    <th class="action-column">操作</th>
                 </tr>
             </thead>
             <tbody id="proxyTable">

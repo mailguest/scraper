@@ -18,6 +18,10 @@ def index():
 def get_jobs_page():
     return render_template('jobs.html', active_page='jobs')
 
+@bp.route('/joblogs')
+def get_joblogs_page():
+    return render_template('joblogs.html')
+
 @bp.route('/proxy')
 def proxy_page():
     return render_template('proxy.html', active_page='proxy')
