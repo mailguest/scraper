@@ -17,16 +17,15 @@ function getLogs(taskName, status, page, size, callback) {
 }
 
 function renderLogs(data) {
+    const logsTable = document.getElementById('logsTable');
     // 检查数据是否为空
     if (!data.items || data.items.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = `<td colspan="6" style="text-align: center; padding: 20px;">暂无数据</td>`;
-        tbody.appendChild(row);
+        logsTable.appendChild(row);
         totalPages = 1;
     } else {
-        const logsTable = document.getElementById('logsTable');
         logsTable.innerHTML = '';
-
         data.items.forEach(log => {
             const row = document.createElement('tr');
             row.innerHTML = `

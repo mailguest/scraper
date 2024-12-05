@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from .Article import Article
-from utils.log_utils import setup_logging
-from config.db import DBConfig
+from config.config import DBConfig
 from flask import current_app
+from utils.tools import setup_logging
+from utils.models import Article
 
 class ArticleMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):

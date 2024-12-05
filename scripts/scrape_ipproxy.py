@@ -5,7 +5,7 @@ import json
 from lxml import etree
 import random
 from config.config import Config
-from utils.log_utils import setup_logging
+from utils.tools import setup_logging
 from typing import Optional
 
 # 免费海外代理 ip 页

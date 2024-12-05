@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional
 import uuid
-from utils.log_utils import setup_logging
 from config.db import DBConfig
 from flask import current_app
+from utils.tools.log_utils import setup_logging
 
 class NamespaceMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):

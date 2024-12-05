@@ -1,8 +1,8 @@
 from gevent.pywsgi import WSGIServer
 from flask import Flask
-from utils.log_utils import setup_logging
 from config.db import DBConfig
-from utils import ArticleMapper, DictionaryMapper, PromptTemplateMapper, NamespaceMapper, TaskLogsMapper
+from utils.tools import setup_logging
+from utils.mappers import ArticleMapper, DictionaryMapper, PromptTemplateMapper, NamespaceMapper, TaskLogsMapper
 import os
 
 # 获取项目根目录

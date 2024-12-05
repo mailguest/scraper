@@ -1,8 +1,8 @@
 import os
 from openai import OpenAI
-from utils.Model import ModelEnum
-from utils.PlayGroundModel import PlayGroundModel
-from utils.log_utils import setup_logging
+from utils.enums import ModelEnum
+from utils.models import PlayGroundModel
+from utils.tools import setup_logging
 
 def completion(prompt: PlayGroundModel, logger):
     

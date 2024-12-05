@@ -1,7 +1,5 @@
 import os
-from unittest.mock import DEFAULT
 from config.db import DBConfig
-from utils import Model
 
 class Config:
     DB = DBConfig()
@@ -13,7 +11,7 @@ class Config:
     CONFIG_CHECK_INTERVAL = 5     # 配置检查间隔
     DEFAULT_NAMESPACE = "default" # 默认命名空间
     DEFAULT_NAME = "default"      # 默认名称
-    DEFAULT_MODEL_NAME = Model.ModelEnum.GROK_BETA.get_name() # 默认模型名称
+    DEFAULT_MODEL_NAME = "grok_beta" # 默认模型名称
     DEFAULT_PROMPT_TOKENS = 4096  # 默认Prompt最大长度
 
     

@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify, current_app
 from pydantic import ValidationError
 
 from apis.services.playground_service import PromptsFileService
-from utils.PlayGroundModel import PlayGroundModel
-from utils.Model import ModelEnum
-from utils.check import check_valid, convert_to_object
+from utils.models import PlayGroundModel
+from utils.enums import ModelEnum
+from utils.tools import convert_to_object
 from datetime import datetime
 
 bp = Blueprint('llms', __name__, url_prefix='/apis/llms')

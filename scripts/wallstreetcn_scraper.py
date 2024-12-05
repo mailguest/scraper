@@ -1,12 +1,12 @@
 import json
 import requests
 from scripts.base_scraper import BaseScraper
-from utils.log_utils import setup_logging  # 引入日志工具类
+from utils.tools import setup_logging  # 引入日志工具类
 from datetime import datetime
 import uuid
 from bs4 import BeautifulSoup
 from scripts.scrape_ipproxy import get_random_proxies
-from utils.Article import Article
+from utils.models import Article
 from config.config import Config
 
 class WallStreetCNScraper(BaseScraper):

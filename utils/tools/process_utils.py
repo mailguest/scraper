@@ -1,7 +1,7 @@
 import subprocess
 import os
 import threading
-from utils.log_utils import log_subprocess_output  # 更新引用路径
+from utils.tools.log_utils import log_subprocess_output
 
 class ProcessUtils():
     def __init__(self, process_name, root_path, script_path, log_file_name, logger):

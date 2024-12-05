@@ -1,5 +1,5 @@
 from apis.services.playground_service import PromptsFileService
-from utils.PromptTemplate import PromptTemplate
+from utils import PromptTemplate
 
 
 def main():

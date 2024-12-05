@@ -4,8 +4,8 @@ import threading
 import time
 import json
 
-from utils.TaskLogsMapper import TaskLogsMapper
-from utils.log_utils import setup_logging
+from utils.mappers import TaskLogsMapper
+from utils.tools import setup_logging
 from scripts.scrape_list import scrape  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles  # 内容爬虫
 from scripts.scrape_ipproxy import scrape_ipproxies  # IP 代理爬虫

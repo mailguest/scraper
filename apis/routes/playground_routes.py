@@ -1,17 +1,11 @@
 from datetime import datetime
-from sys import version
-from typing import Any
 from venv import logger
 from flask import Blueprint, request, jsonify, current_app
-from flask.cli import F
 from pydantic import ValidationError
 from apis.services.playground_service import PromptsFileService
-from config.config import Config
-from utils.Model import ModelEnum
-from utils.PlayGroundModel import PlayGroundModel
-from utils.StatusEnum import StatusEnum
-from utils.PromptTemplate import PromptTemplate
-from utils.check import check_valid, convert_to_object
+from utils.enums import ModelEnum
+from utils.models import PlayGroundModel, PromptTemplate
+from utils.tools import check_valid, convert_to_object
 
 bp = Blueprint('playground', __name__, url_prefix='/apis/prompts')
 

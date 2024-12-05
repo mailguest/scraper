@@ -164,11 +164,15 @@ function createNamespace() {
 
     modal.innerHTML = `
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 class="box-bottom-20px">添加新的空间</h2>
-            <label for="namespaceInput">空间名字</label>
-            <input class="default-input w200-px" type="text" id="namespaceInput" placeholder="输入空间名字">
-            <div class="modal-actions">
+            <span class="modal-close">&times;</span>
+            <h2 class="title">添加新的空间</h2>
+            <div class="form-content">
+                <div class="form-group">
+                    <label for="namespaceInput">空间名字</label>
+                    <input class="default-input w200-px" type="text" id="namespaceInput" placeholder="输入空间名字">
+                </div>
+            </div>
+            <div class="form-button">
                 <button class="btn btn-light" id="cancelButton">取消</button>
                 <button class="btn btn-primary" id="confirmButton">确认</button>
             </div>
@@ -177,7 +181,7 @@ function createNamespace() {
 
     document.body.appendChild(modal);
 
-    const closeButton = modal.querySelector('.close-button');
+    const closeButton = modal.querySelector('.modal-close');
     const cancelButton = modal.querySelector('#cancelButton');
     const confirmButton = modal.querySelector('#confirmButton');
 
@@ -210,19 +214,21 @@ function createPrompts() {
 
     modal.innerHTML = `
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 class="box-bottom-20px">新建提示词</h2>
-            <div class="box-bottom-10px">
-                <label for="namespaceSelect">选择空间</label>
-                <select class="default-select w200-px" id="namespaceSelect">
-                    ${namespaceOptions.map(namespace => `<option value="${namespace}">> ${namespace}</option>`).join('')}
-                </select>
+            <span class="modal-close">&times;</span>
+            <h2 class="title">新建提示词</h2>
+            <div class="form-content">
+                <div class="form-group">
+                    <label for="namespaceSelect">选择空间</label>
+                    <select class="default-select" id="namespaceSelect">
+                        ${namespaceOptions.map(namespace => `<option value="${namespace}">> ${namespace}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="promptInput">提示词命名</label>
+                    <input class="default-input" type="text" id="promptInput" placeholder="输入提示词命名">
+                </div>
             </div>
-            <div>
-                <label for="promptInput">提示词命名</label>
-                <input class="default-input w200-px" type="text" id="promptInput" placeholder="输入提示词命名">
-            </div>
-            <div class="modal-actions">
+            <div class="form-button">
                 <button class="btn btn-secondary" id="cancelButton">取消</button>
                 <button class="btn btn-primary" id="confirmButton">确认</button>
             </div>
@@ -231,7 +237,7 @@ function createPrompts() {
 
     document.body.appendChild(modal);
 
-    const closeButton = modal.querySelector('.close-button');
+    const closeButton = modal.querySelector('.modal-close');
     const cancelButton = modal.querySelector('#cancelButton');
     const confirmButton = modal.querySelector('#confirmButton');
 
@@ -358,8 +364,8 @@ function createAPIModal(pid) {
 
     modal.innerHTML = `
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 class="box-bottom-10px">API</h2>
+            <span class="modal-close">&times;</span>
+            <h2 class="title">API</h2>
             <div class="box-bottom-10px">
                 <pre class="box-bottom-10px">
 <code>POST http://127.0.0.1:5001/apis/llms/v1/`+pid+`
@@ -370,7 +376,7 @@ function createAPIModal(pid) {
                 </pre>
                 <p class="font-14px">Tips：当user_input为空的时候会使用模板中保存的用户输入。你可以在这里用占位符来达到不直接使用用户输入作为user_input的目的。</p>
             </div>
-            <div class="modal-actions">
+            <div class="form-button">
                 <button class="btn btn-secondary" id="closeButton">关闭</button>
             </div>
         </div>
@@ -378,7 +384,7 @@ function createAPIModal(pid) {
 
     document.body.appendChild(modal);
 
-    const closeButton = modal.querySelector('.close-button');
+    const closeButton = modal.querySelector('.modal-close');
     const closeButtonFooter = modal.querySelector('#closeButton');
 
     closeButton.addEventListener('click', () => {

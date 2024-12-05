@@ -8,8 +8,8 @@ from hashlib import sha1
 from hashlib import md5
 
 from scripts.scrape_ipproxy import get_random_proxies
-from utils.Article import Article
-from utils.log_utils import setup_logging
+from utils.models import Article
+from utils.tools import setup_logging
 
 def get_sign(keywords):
     if keywords is None:

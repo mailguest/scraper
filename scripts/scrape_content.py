@@ -1,8 +1,8 @@
 from logging import Logger
 from config.db import DBConfig
 from scripts.scrape_factory import ContentScraperFactory
-from utils.ArticleMapper import ArticleMapper
-from utils.Article import Article
+from utils.mappers import ArticleMapper
+from utils.models import Article
 from datetime import datetime
 
 def scrape_article_content(article: Article, logger:Logger, db:DBConfig) -> int:

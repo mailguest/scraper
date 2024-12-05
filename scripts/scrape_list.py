@@ -4,7 +4,7 @@ from config.db import DBConfig
 from scripts.scrape_factory import ScraperFactory
 from scripts.scrape_ipproxy import get_random_proxies
 from config.config import Config
-from utils.ArticleMapper import ArticleMapper
+from utils.mappers import ArticleMapper
 
 
 # 加载 URLs 配置文件

@@ -2,12 +2,9 @@ import os
 from typing import Dict, List, Optional
 from flask import current_app
 from apis.services.chat_service import completion
-from utils.PlayGroundModel import PlayGroundModel
-from utils.NamespaceMapper import NamespaceMapper
-from utils.PromptTemplate import PromptTemplate
-from utils.PromptTemplateMapper import PromptTemplateMapper
-from utils.log_utils import setup_logging
-from openai import OpenAI
+from utils.models import PlayGroundModel, PromptTemplate
+from utils.mappers import NamespaceMapper, PromptTemplateMapper
+from utils.tools import setup_logging
 
 class PromptsFileService:
     def __init__(self, logger=None):

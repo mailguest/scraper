@@ -1,11 +1,8 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from re import S
-from sys import version
 from typing import Optional
-import uuid
-from utils.StatusEnum import StatusEnum
-from utils.Model import Model, ModelEnum
+from utils.enums import ModelEnum
+
 
 @dataclass
 class PromptTemplate:

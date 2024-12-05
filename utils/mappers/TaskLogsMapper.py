@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from flask import current_app
 from config.db import DBConfig
-from utils.log_utils import setup_logging
+from utils.tools import setup_logging
 
 class TaskLogsMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
