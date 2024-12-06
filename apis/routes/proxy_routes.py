@@ -5,7 +5,8 @@ bp = Blueprint('proxy', __name__, url_prefix='/apis')
 
 @bp.route('/proxies')
 def get_proxies():
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         proxies = ipproxy.get_proxies(logger)
         return jsonify(proxies)
@@ -14,7 +15,8 @@ def get_proxies():
 
 @bp.route('/proxies/refresh', methods=['POST'])
 def refresh_proxies():
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         ipproxy.scrape_ipproxies(logger)
         return jsonify({"message": "代理列表已更新"})
@@ -23,7 +25,8 @@ def refresh_proxies():
 
 @bp.route('/proxies/<path:ip>/test', methods=['POST'])
 def test_and_flush_proxy(ip):
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     proxy = ipproxy.find(ip.split(':')[0], ip.split(':')[1])
     if proxy is None:
         return jsonify({"error": f"代理 {ip} 不存在"}), 500
@@ -37,7 +40,8 @@ def test_and_flush_proxy(ip):
 
 @bp.route('/proxies/<path:ip>', methods=['DELETE'])
 def delete_proxy(ip):
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         logger.info(f"删除代理: {ip}")
         ipproxy.delete(ipproxy.IpProxy(ip.split(':')[0], ip.split(':')[1], '', ''))

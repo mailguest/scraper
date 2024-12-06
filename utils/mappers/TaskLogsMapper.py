@@ -8,7 +8,7 @@ class TaskLogsMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("TaskLogsMapper", "TaskLogsMapper.log") 
         # 获取集合
-        self.collection = current_app.config["db"].fetch_table('tasklogs') if db is None else db.fetch_table('tasklogs')
+        self.collection = current_app.config["db"].get("tasklogs") if db is None else db.get("tasklogs")
 
     def log_task_start(self, task_name):
         start_time = datetime.now()

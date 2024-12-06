@@ -1,6 +1,6 @@
 import os
 from typing import Dict, List, Optional
-from flask import current_app
+from flask import current_app, g
 from apis.services.chat_service import completion
 from utils.models import PlayGroundModel, PromptTemplate
 from utils.mappers import NamespaceMapper, PromptTemplateMapper
@@ -12,8 +12,8 @@ class PromptsFileService:
         :param namespace: 命名空间
         """
         self.logger = logger if logger is not None else setup_logging("PromptsFileService", "PromptsFileService.log") 
-        self.namespace_mapper:NamespaceMapper = current_app.config['namespace_mapper']
-        self.prompt_template_mapper:PromptTemplateMapper = current_app.config['playground_mapper']
+        self.namespace_mapper:NamespaceMapper = NamespaceMapper()
+        self.prompt_template_mapper:PromptTemplateMapper = PromptTemplateMapper()
 
     def list_all(self) -> Dict[str, List]:
         """

@@ -1,12 +1,11 @@
 from gevent.pywsgi import WSGIServer
-from flask import Flask
-from config.db import DBConfig
+from flask import Flask, g
+from config.db import db_connect
 from utils.tools import setup_logging
 from utils.mappers import ArticleMapper, DictionaryMapper, PromptTemplateMapper, NamespaceMapper, TaskLogsMapper
 import os
 
 # 获取项目根目录
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def create_app():
@@ -16,13 +15,8 @@ def create_app():
                 template_folder=os.path.join(BASE_DIR, 'templates'))
     
     # 初始化数据库
-    app.config['db'] = DBConfig()
-    app.config['article_mapper'] = ArticleMapper(db=app.config['db'], logger=logger)
-    app.config['dictonary_mapper'] = DictionaryMapper(db=app.config['db'], logger=logger)
-    app.config['playground_mapper'] = PromptTemplateMapper(db=app.config['db'], logger=logger)
-    app.config['namespace_mapper'] = NamespaceMapper(db=app.config['db'], logger=logger)
-    app.config['tasklogs_mapper'] = TaskLogsMapper(db=app.config['db'], logger=logger)
-    app.config['logger'] = logger
+    app.config['db'] = db_connect
+    app.logger = logger
     
     # 注册路由
     from apis.routes import article_routes, job_routes, proxy_routes, view_routes, dictionary_routes, playground_routes, llms_routes

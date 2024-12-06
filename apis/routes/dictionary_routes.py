@@ -1,5 +1,6 @@
 from bson import ObjectId
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, g
+from utils.mappers import DictionaryMapper
 
 bp = Blueprint('dictionary', __name__, url_prefix='/apis')
 
@@ -17,7 +18,7 @@ def get_dictionaries():
     if key:
         query['key'] = {'$regex': key}
 
-    dictonary_mapper = current_app.config['dictonary_mapper']
+    dictonary_mapper = DictionaryMapper()
     if query:
         dictionaries = list(dictonary_mapper.find(query))
     else:
@@ -31,7 +32,7 @@ def get_dictionary(id):
     """
     查询指定字典数据
     """
-    dictonary_mapper = current_app.config['dictonary_mapper']
+    dictonary_mapper = DictionaryMapper()
     dictionary = dictonary_mapper.find_one({'_id': ObjectId(id)})
     if dictionary:
         dictionary['_id'] = str(dictionary['_id'])
@@ -44,7 +45,7 @@ def add_dictionary():
     添加字典数据
     """
     data = request.json
-    dictonary_mapper = current_app.config['dictonary_mapper']
+    dictonary_mapper = DictionaryMapper()
     dictionary_id = dictonary_mapper.insert_one(data).inserted_id
     return jsonify({'_id': str(dictionary_id)})
 
@@ -54,7 +55,7 @@ def update_dictionary(id):
     更新字典数据
     """
     data = request.json
-    dictonary_mapper = current_app.config['dictonary_mapper']
+    dictonary_mapper = DictionaryMapper()
     dictonary_mapper.update_one({'_id': ObjectId(id)}, {'$set': data})
     return jsonify({'_id': id})
 
@@ -63,6 +64,6 @@ def delete_dictionary(id):
     """
     删除字典数据
     """
-    dictonary_mapper = current_app.config['dictonary_mapper']
+    dictonary_mapper = DictionaryMapper()
     dictonary_mapper.delete_one({'_id': ObjectId(id)})
     return jsonify({'_id': id})

@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, g
 from scripts.scrape_list import scrape as scrape_list
 from scripts.scrape_content import scrape_all_articles
+from utils.mappers import ArticleMapper
 
 bp = Blueprint('article', __name__, url_prefix='/apis')
 
@@ -10,9 +11,8 @@ def get_data():
     获取文章数据的 API 端点
     :return: JSON 格式的文章数据
     """
-    logger = current_app.config['logger']
-    article_mapper = current_app.config['article_mapper']
-
+    logger = current_app.logger
+    
     # 获取查询参数 page, limit 和 date，设置默认值
     page = int(request.args.get('page', 1))  # 默认为第一页
     limit = int(request.args.get('limit', 10))  # 默认为每页 10 条数据
@@ -27,6 +27,7 @@ def get_data():
     logger.info(f"Parameters - get_data: article_filter={article_filter}, page={page}, limit={limit}")
 
     # 加载缓存中的数据
+    article_mapper = ArticleMapper()
     data = article_mapper.get_articles_by_article(article_filter, page, limit)
 
     # 如果请求的页面超出范围，返回空列表
@@ -43,12 +44,12 @@ def get_article(uuid):
     :param uuid: 文章的 UUID
     :return: JSON 格式的文章数据
     """
-    logger = current_app.config['logger']
-    article_mapper = current_app.config['article_mapper']
+    logger = current_app.logger
 
     logger.info(f"Received request for article with UUID: {uuid}")
 
     # 加载缓存中的数据
+    article_mapper = ArticleMapper()
     data = article_mapper.get_article_by_uuid(uuid)
 
     if not data:
@@ -59,8 +60,9 @@ def get_article(uuid):
 
 @bp.route('/article/<uuid>', methods=['DELETE'])
 def delete_article(uuid):
-    logger = current_app.config['logger']
-    article_mapper = current_app.config['article_mapper']
+    logger = current_app.logger
+
+    article_mapper = ArticleMapper()
     article_mapper.delete_article(uuid)
     return jsonify({"message": "Article deleted"}), 204
 
@@ -69,7 +71,7 @@ def do_scrape():
     """
     手动抓取一次数据
     """
-    logger = current_app.config['logger']
+    logger = current_app.logger
     db = current_app.config['db']
     try:
         logger.info("Running manual scraping job...")

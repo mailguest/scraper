@@ -10,6 +10,7 @@ from scripts.scrape_list import scrape  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles  # 内容爬虫
 from scripts.scrape_ipproxy import scrape_ipproxies  # IP 代理爬虫
 from config.config import Config
+from config.db import db_connect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import traceback
@@ -30,19 +31,18 @@ def load_schedule_config(logger):
 
 def task_wrapper(key, task_func, logger):
     """包装任务函数，处理日志记录和任务状态管理"""
-    with db.get_connection() as connection:
-        task_logs_mapper = TaskLogsMapper(connection, logger)
-        log_id, start_time = task_logs_mapper.log_task_start(key)
-        data_count = 0
-        try:
-            data_count = task_func(logger, connection)
-            logger.info(f"{key} 任务完成。")
-        except Exception as e:
-            logger.error(f"{key} 任务失败: {str(e)}")
-            logger.error(f"详细错误信息: {traceback.format_exc()}")
-            return False
-        finally:
-            task_logs_mapper.log_task_end(log_id, start_time, data_count)
+    task_logs_mapper = TaskLogsMapper(db_connect, logger)
+    log_id, start_time = task_logs_mapper.log_task_start(key)
+    data_count = 0
+    try:
+        data_count = task_func(logger, db_connect)
+        logger.info(f"{key} 任务完成。")
+    except Exception as e:
+        logger.error(f"{key} 任务失败: {str(e)}")
+        logger.error(f"详细错误信息: {traceback.format_exc()}")
+        return False
+    finally:
+        task_logs_mapper.log_task_end(log_id, start_time, data_count)
     return True
 
 def run_task_with_lock(key, logger):
@@ -134,5 +134,4 @@ def main():
             time.sleep(5)
 
 if __name__ == "__main__":
-    db = Config.DB
     main()

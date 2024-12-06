@@ -8,7 +8,7 @@ class NamespaceMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("NamespaceMapper", "NamespaceMapper.log") 
         # 获取集合
-        self.collection = current_app.config["db"].fetch_table('namespace') if db is None else db.fetch_table('namespace')
+        self.collection = current_app.config["db"].get("namespace") if db is None else db.get("namespace")
 
        # 判断索引是否存在
         if not self.collection.index_information().get('namespace_1'):

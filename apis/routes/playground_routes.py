@@ -14,7 +14,8 @@ def save_or_update_prompt():
     """
     保存或更新一个prompt
     """
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     prompt_file_service = PromptsFileService(logger=logger)
 
     try:
@@ -51,7 +52,8 @@ def save_or_update_prompt():
     
 @bp.route('/nsave', methods=['POST'])
 def save_namespace():
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
 
     data = request.json
     if data is None or 'namespace' not in data:
@@ -70,7 +72,8 @@ def get_prompt():
     """
     获取一个prompt
     """
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     data = request.json
     if data is None:
         return jsonify({'error': '参数校验错误'}), 400

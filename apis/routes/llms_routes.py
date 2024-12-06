@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, g
 from pydantic import ValidationError
 
 from apis.services.playground_service import PromptsFileService
@@ -19,7 +19,8 @@ def get_models():
 
 @bp.route('/chat', methods=['POST'])
 def chat():
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     prompt_file_service = PromptsFileService(logger=logger)
 
     try:
@@ -44,7 +45,8 @@ def chat():
 # POST http://127.0.0.1:5001/apis/llms/v1/ac4ce8a0-cb31-584c-b72c-ce60bcf5cf97
 @bp.route('/v1/<pid>', methods=['POST'])
 def chat_v1(pid):
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     data = request.json
     
     if data is not None:

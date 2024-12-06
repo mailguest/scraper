@@ -8,7 +8,7 @@ class PromptTemplateMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("PromptTemplateMapper", "PromptTemplateMapper.log") 
         # 获取集合
-        self.collection = current_app.config["db"].fetch_table('prompt') if db is None else db.fetch_table('prompt')
+        self.collection = current_app.config["db"].get("prompt") if db is None else db.get("prompt")
 
         # 判断索引是否存在
         if not self.collection.index_information().get('prompt_nnv_index'):

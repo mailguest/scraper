@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, g
 from services.job_service import load_schedule_config, save_schedule_config
 from scripts.scrape_list import scrape as scrape_list
 from scripts.scrape_content import scrape_all_articles
 import scripts.scrape_ipproxy as ipproxy
+from utils.mappers import TaskLogsMapper
 
 
 bp = Blueprint('job', __name__, url_prefix='/apis/jobs')
@@ -10,7 +11,8 @@ bp = Blueprint('job', __name__, url_prefix='/apis/jobs')
 @bp.route('/', methods=['GET'])
 def get_jobs():
     """获取所有定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         config = load_schedule_config()
         return jsonify(config['jobs'])
@@ -21,7 +23,8 @@ def get_jobs():
 @bp.route('/<job_id>', methods=['GET'])
 def get_job(job_id):
     """获取特定定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         config = load_schedule_config()
         job = next((job for job in config['jobs'] if job['id'] == job_id), None)
@@ -35,7 +38,8 @@ def get_job(job_id):
 @bp.route('/', methods=['POST'])
 def create_job():
     """创建新的定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         new_job = request.get_json()
         if not hasattr(new_job, "id"):
@@ -57,7 +61,8 @@ def create_job():
 @bp.route('/<job_id>', methods=['PUT'])
 def update_job(job_id):
     """更新定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         updated_job = request.json
         config = load_schedule_config()
@@ -76,7 +81,8 @@ def update_job(job_id):
 @bp.route('/<job_id>', methods=['DELETE'])
 def delete_job(job_id):
     """删除定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         config = load_schedule_config()
         config['jobs'] = [job for job in config['jobs'] if job['id'] != job_id]
@@ -89,7 +95,8 @@ def delete_job(job_id):
 @bp.route('/<job_id>/execute', methods=['POST'])
 def execute_job(job_id):
     """立即执行指定的定时任务"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         config = load_schedule_config()
         job = next((job for job in config['jobs'] if job['id'] == job_id), None)
@@ -134,7 +141,8 @@ def execute_job(job_id):
 @bp.route('/<job_id>/toggle', methods=['POST'])
 def toggle_job(job_id):
     """切换任务的启用/禁用状态"""
-    logger = current_app.config['logger']
+    # logger = current_app.config['logger']
+    logger = current_app.logger
     try:
         config = load_schedule_config()
         job = next((job for job in config['jobs'] if job['id'] == job_id), None)
@@ -166,7 +174,7 @@ def get_logs():
             'total_pages': 99
         }
     """
-    tasklogs_mapper = current_app.config['tasklogs_mapper']
+    
 
     # 获取查询参数 page, limit 和 date，设置默认值
     page = int(request.args.get('page', 1))  # 默认为第一页
@@ -174,6 +182,7 @@ def get_logs():
     task_name = request.args.get('taskName', None)
     status = request.args.get('status', None)
     
+    tasklogs_mapper = TaskLogsMapper()
     data = tasklogs_mapper.get_task_logs(page=page, size=size, task_name=task_name, status=status)
     return jsonify(data)
     
