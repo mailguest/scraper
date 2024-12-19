@@ -416,7 +416,8 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.w10-px {width: 10px;}
+
+/* .w10-px {width: 10px;}
 .w20-px {width: 20px;}
 .w40-px {width: 40px;}
 .w60-px {width: 60px;}
@@ -436,7 +437,8 @@ body {
 .font-14px {font-size: 14px;}
 .font-16px {font-size: 16px;}
 .font-18px {font-size: 18px;}
-.font-20px {font-size: 20px;}
+.font-20px {font-size: 20px;} */
+@import url('base.css');
 
 /* ===================== */
 /* 动画样式 */

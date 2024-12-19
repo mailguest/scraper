@@ -1,0 +1,25 @@
+@use 'sass:math';
+
+@for $i from 1 through 20 {
+    @if $i % 2 == 0 {
+        .w#{$i}-px { 
+            width: #{$i * 10}px; 
+        }
+        .font-#{$i}px {
+            font-size: #{$i}px;
+        }
+    }
+    @if $i > 0 and $i < 5 {
+        .box-bottom-#{$i * 5}px {
+            margin-bottom: #{$i * 5}px;
+        }
+    }
+    @if $i < 10 {
+        .w#{$i * 10}-px {
+            width: #{$i * 10}px;
+        }
+        .w#{$i * 10}-p {
+            width: #{$i * 10}+'%';
+        }
+    }
+}

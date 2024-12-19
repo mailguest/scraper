@@ -27,6 +27,9 @@
 在本地开发环境中，可以通过以下命令安装所需的依赖：
 
 ```bash
+npm install -g sass
+sass static/css/base.scss static/css/base.css
+
 pip install -r requirements.txt
 ```
 
