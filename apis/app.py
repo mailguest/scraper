@@ -1,8 +1,7 @@
 from gevent.pywsgi import WSGIServer
-from flask import Flask, g
+from flask import Flask
 from config.db import db_connect
 from utils.tools import setup_logging
-from utils.mappers import ArticleMapper, DictionaryMapper, PromptTemplateMapper, NamespaceMapper, TaskLogsMapper
 import os
 
 # 获取项目根目录
@@ -16,7 +15,8 @@ def create_app():
     
     # 初始化数据库
     app.config['db'] = db_connect
-    app.logger = logger
+    app.logger.handlers = logger.handlers
+    app.logger.setLevel(logger.level)
     
     # 注册路由
     from apis.routes import article_routes, job_routes, proxy_routes, view_routes, dictionary_routes, playground_routes, llms_routes
@@ -30,6 +30,7 @@ def create_app():
     
     return app
 
+
 if __name__ == "__main__":
     # 初始化日志
     logger = setup_logging("API", "api.log")
@@ -39,9 +40,8 @@ if __name__ == "__main__":
     host = "127.0.0.1"
     port = os.getenv("API_PORT", 5001)
     url = f"http://{host}:{port}"
+    listener = f"{host}:{port}"
     
+    http_server = WSGIServer(listener, app)
     logger.info(f"API server is running at {url}")
-    
-    # app.run(debug=True, host='0.0.0.0', port=5001)
-    http_server = WSGIServer((host, port), app)
     http_server.serve_forever()
