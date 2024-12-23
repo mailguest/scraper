@@ -39,9 +39,8 @@ if __name__ == "__main__":
     
     host = "127.0.0.1"
     port = os.getenv("API_PORT", 5001)
-    url = f"http://{host}:{port}"
     listener = f"{host}:{port}"
     
     http_server = WSGIServer(listener, app)
-    logger.info(f"API server is running at {url}")
+    logger.info(f"API server is running at http://{listener}")
     http_server.serve_forever()
