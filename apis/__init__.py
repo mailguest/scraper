@@ -2,12 +2,16 @@ import json
 import os
 from venv import logger
 from flask import Flask
-from database.db import init_engine, init_session, init_tables
 import toml
 
+from database.db_manager import DatabasePool
+from utils.GlobalManager import GlobalManager
+
 def create_app():
+    GlobalManager.init("API")
     app = register_flask() # 注册 Flask APP
-    register_db(app) # 注册数据库连接
+    database_pool = register_db(app) # 注册数据库连接
+    GlobalManager.set("database", database_pool)
     register_route(app) # 注册路由器
     return app
 
@@ -27,13 +31,9 @@ def register_flask():
 def register_db(app):
     app.config.from_file("database.toml", load=toml.load, text=True)
     # 初始化数据库
-    db_engine = init_engine(app.config.get("DATABASE"))
-    db_session = init_session(db_engine)
-    app.config['DB_ENGINE'] = db_engine
-    app.config['DB_SESSION'] = db_session
-    # 确保数据库表只创建一次
-    with app.app_context():
-        init_tables(db_engine)
+    database_pool = DatabasePool()
+    database_pool.init_db(app.config.get("DATABASE"))
+    return database_pool
 
 def register_route(app):
     from apis.routes import view_routes
