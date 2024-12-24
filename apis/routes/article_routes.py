@@ -1,7 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app, g
-from scripts.scrape_list import scrape as scrape_list
-from scripts.scrape_content import scrape_all_articles
-from utils.mappers import ArticleMapper
+from flask import Blueprint, jsonify, request, current_app
 
 bp = Blueprint('article', __name__, url_prefix='/apis')
 
@@ -13,10 +10,8 @@ def get_data():
     """
     logger = current_app.logger
     
-    # 获取查询参数 page, limit 和 date，设置默认值
     page = int(request.args.get('page', 1))  # 默认为第一页
     limit = int(request.args.get('limit', 10))  # 默认为每页 10 条数据
-
 
     article_filter = {
         "date": request.args.get('date', None),  # 如果提供了日期，按日期过滤
@@ -65,21 +60,3 @@ def delete_article(uuid):
     article_mapper = ArticleMapper()
     article_mapper.delete_article(uuid)
     return jsonify({"message": "Article deleted"}), 204
-
-@bp.route('/scrape', methods=['POST'])
-def do_scrape():
-    """
-    手动抓取一次数据
-    """
-    logger = current_app.logger
-    db = current_app.config['db']
-    try:
-        logger.info("Running manual scraping job...")
-        scrape_list(logger, db)
-        scrape_all_articles(logger, db)
-        logger.info("Manual scraping completed successfully.")
-    except Exception as e:
-        logger.error(f"Manual scraping failed: {str(e)}")
-        return jsonify({"error": "Manual scraping failed"}), 500
-    return jsonify({"message": "Manual scraping completed successfully"})
-

@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 import uuid
-from config.db import DBConfig
+from database.db import DBConfig
 from flask import current_app
 from utils.tools.log_utils import setup_logging
 

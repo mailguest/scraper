@@ -1,5 +1,4 @@
 from typing import Dict, List, Optional
-from config.db import DBConfig
 from flask import current_app
 from bson import ObjectId
 from utils.tools.log_utils import setup_logging

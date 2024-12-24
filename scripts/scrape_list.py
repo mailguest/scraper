@@ -1,6 +1,6 @@
 import json
 from logging import Logger
-from config.db import DBConfig
+from database.db import DBConfig
 from scripts.scrape_factory import ScraperFactory
 from scripts.scrape_ipproxy import get_random_proxies
 from config.config import Config

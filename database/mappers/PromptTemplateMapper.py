@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional
-from config.db import DBConfig
+from database.db import DBConfig
 from flask import current_app
 from utils.tools.log_utils import setup_logging
-from utils.models.PromptTemplate import PromptTemplate
+from models.PromptTemplate import PromptTemplate
 
 class PromptTemplateMapper:
     def __init__(self, db: Optional[DBConfig]=None, logger=None):

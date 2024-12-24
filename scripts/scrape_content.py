@@ -1,5 +1,5 @@
 from logging import Logger
-from config.db import DBConfig
+from database.db import DBConfig
 from scripts.scrape_factory import ContentScraperFactory
 from utils.mappers import ArticleMapper
 from utils.models import Article

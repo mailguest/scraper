@@ -10,7 +10,7 @@ from scripts.scrape_list import scrape  # 列表爬虫
 from scripts.scrape_content import scrape_all_articles  # 内容爬虫
 from scripts.scrape_ipproxy import scrape_ipproxies  # IP 代理爬虫
 from config.config import Config
-from config.db import db_connect
+from database.db import db_connect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import traceback

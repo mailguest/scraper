@@ -1,4 +1,4 @@
-from config.db import init_mongo, mongo as db
+from database.db import init_mongo, mongo as db
 from utils import ArticleMapper, Article
 
 def test_mongodb():

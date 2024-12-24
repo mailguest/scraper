@@ -210,16 +210,6 @@ function closeArticleModal() {
     document.body.style.overflow = 'auto';
 }
 
-function startScrape() {
-    fetch('/apis/scrape', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            showToast('success', '爬取任务已启动');
-            setTimeout(loadArticles, 3000);
-        })
-        .catch(error => showToast('错误', '启动爬取失败：' + error.message));
-}
-
 function deleteArticle(uuid) {
     fetch(`/apis/article/${uuid}`, {
         method: 'DELETE'

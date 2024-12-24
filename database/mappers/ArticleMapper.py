@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from config.config import DBConfig
 from flask import current_app
 from utils.tools import setup_logging
-from utils.models import Article
+from models import Article
 
 class ArticleMapper:
-    def __init__(self, db: Optional[DBConfig]=None, logger=None):
+    def __init__(self, engine=None, session=None, logger=None):
         self.logger = logger if logger is not None else setup_logging("ArticleMapper", "ArticleMapper.log") 
         # 获取集合
         self.collection = current_app.config["db"].get("articles") if db is None else db.get("articles")

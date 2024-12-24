@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from flask import current_app
-from config.db import DBConfig
+from database.db import DBConfig
 from utils.tools import setup_logging
 
 class TaskLogsMapper:

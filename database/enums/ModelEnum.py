@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 
 class LLModel:
     def __init__(self, name, version):
@@ -22,7 +23,7 @@ class ModelEnum(enum.Enum):
         return self.value.version
     
     @staticmethod
-    def get_version_by_name(name: str):
+    def get_version_by_name(name: str) -> Optional[str]:
         for model in ModelEnum:
             if model.get_name() == name:
                 return model.get_version()
